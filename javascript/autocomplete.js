@@ -138,7 +138,7 @@ function setupAutocomplete(targetSelector, fetcher) {
 }
 
 /**
- * Fetcher for Civitai API
+ * Fetcher for Civitai API (model names)
  */
 async function civitaiFetcher(query) {
   if (!query) return [];
@@ -147,7 +147,21 @@ async function civitaiFetcher(query) {
   return data.results || [];
 }
 
+/**
+ * Fetcher for Civitai API (tags)
+ */
+async function civitaiTagFetcher(query) {
+  if (!query) return [];
+  const res = await fetch(`/civitai_tag_suggest?q=${encodeURIComponent(query)}`);
+  const data = await res.json();
+  return data.results || [];
+}
+
 // Initialize on WebUI load
 onUiLoaded(() => {
-  setupAutocomplete("#civitai-input textarea", civitaiFetcher);
+// --- Added: For Civitai Helper Browser ---
+// Query field
+setupAutocomplete("#ch_browser_query textarea", civitaiFetcher);
+// Tag field
+  setupAutocomplete("#ch_browser_tag textarea", civitaiTagFetcher);
 });

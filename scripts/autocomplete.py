@@ -1,6 +1,6 @@
 import gradio as gr
 import requests
-from modules import script_callbacks, shared
+from modules import script_callbacks
 
 # Fetch model names from Civitai API
 def fetch_models(query: str):
@@ -40,15 +40,8 @@ def fetch_tags(query: str):
         return []
 
 
-# Add a new tab to the WebUI
 def on_ui_tabs():
-    with gr.Blocks() as demo:
-        with gr.Tab("Civitai Autocomplete"):
-            gr.Markdown("## 🔍 Civitai Model Autocomplete")
-            # Textbox with elem_id so JS can attach autocomplete
-            gr.Textbox(label="Type model name", elem_id="civitai-input")
-
-    return [(demo, "Civitai Autocomplete", "civitai_autocomplete_tab")]
+    return []
 
 
 # Add FastAPI endpoint for suggestions
@@ -57,6 +50,10 @@ def on_app_started(demo, app):
     async def civitai_suggest(q: str = ""):
         return {"results": fetch_models(q)}
     
+    @app.get("/civitai_tag_suggest")
+    async def civitai_tag_suggest(q: str = ""):
+        return {"results": fetch_tags(q)}
+
 
 script_callbacks.on_ui_tabs(on_ui_tabs)
 script_callbacks.on_app_started(on_app_started)
