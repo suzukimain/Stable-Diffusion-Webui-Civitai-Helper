@@ -119,11 +119,13 @@ def make_ui():
     with gr.Row(equal_height=True):
         ch_query_txt = gr.Textbox(
             label="Query",
-            value=""
+            value="",
+            elem_id="ch_browser_query"
         )
         ch_tag_txt = gr.Textbox(
             label="Tag",
-            value=""
+            value="",
+            elem_id="ch_browser_tag"
         )
         ch_age_drop = gr.Dropdown(
             label="Model Age",
