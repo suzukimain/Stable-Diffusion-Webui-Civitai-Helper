@@ -1,6 +1,6 @@
 ### I would like to retire from maintaining this project. As much as I've enjoyed working on this, I have lost interest as of late and no longer use Stable Diffusion WebUI. If anyone would like to take over, please feel free to fork this project.
 
-**[Contributors](https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper/graphs/contributors)**
+<img src="https://visitor-badge.laobi.icu/badge?page_id=suzukimain.Stable-Diffusion-Webui-Civitai-Helper" alt="Visitor Badge">
 
 ### Language
 [中文(ChatGPT)](README.cn.md)
