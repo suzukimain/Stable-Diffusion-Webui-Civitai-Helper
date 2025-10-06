@@ -159,9 +159,11 @@ async function civitaiTagFetcher(query) {
 
 // Initialize on WebUI load
 onUiLoaded(() => {
-// --- Added: For Civitai Helper Browser ---
-// Query field
-setupAutocomplete("#ch_browser_query textarea", civitaiFetcher);
-// Tag field
+  // Query欄: textareaまたはinput両方に対応
+  setupAutocomplete("#ch_browser_query textarea", civitaiFetcher);
+  setupAutocomplete("#ch_browser_query input", civitaiFetcher);
+
+  // Tag欄: textareaまたはinput両方に対応
   setupAutocomplete("#ch_browser_tag textarea", civitaiTagFetcher);
+  setupAutocomplete("#ch_browser_tag input", civitaiTagFetcher);
 });
