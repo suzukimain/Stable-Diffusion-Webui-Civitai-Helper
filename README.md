@@ -12,6 +12,9 @@ This extension provides the ability to download models and model metadata from C
 - [X] Add autocomplete suggestions
     - Add suggestions to the Query search box in the Helper Browser tab
     - Add suggestions to the Tag search box in the Helper Browser tab
+    - Allow users to select suggestions via keyboard navigation
+        -  tab key
+        -  Arrow keys
 
 - [ ] Support Hugging Face
 
