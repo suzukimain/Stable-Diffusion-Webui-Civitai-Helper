@@ -185,15 +185,15 @@ def on_ui_tabs():
 
         # the third parameter is the element id on html, with a "tab_" as prefix
         return (
-            (civitai_helper, "Civitai Helper", "civitai_helper"),
-            (civitai_helper_browser, "Civitai Helper Browser", "civitai_helper_browser")
+            (civitai_helper, "Helper", "civitai_helper"),
+            (civitai_helper_browser, "Helper Browser", "civitai_helper_browser")
         )
 
-    return ((civitai_helper, "Civitai Helper", "civitai_helper"),)
+    return ((civitai_helper, "Helper", "civitai_helper"),)
 
 
 def on_ui_settings():
-    section = ('civitai_helper', "Civitai Helper")
+    section = ('civitai_helper', "Helper")
     shared.opts.add_option(
         "ch_civiai_api_key",
         shared.OptionInfo(
@@ -256,7 +256,7 @@ def on_ui_settings():
         "ch_hide_buttons",
         shared.OptionInfo(
            [x for x, y in BUTTONS.items() if y],
-           "Hide checked Civitai Helper buttons on model cards",
+              "Hide checked Helper buttons on model cards",
            gr.CheckboxGroup,
            {"choices": list(BUTTONS)},
            section=section
@@ -342,7 +342,7 @@ def on_ui_settings():
         "ch_civitai_browser",
         shared.OptionInfo(
             True,
-            "Add an interface for browsing Civitai and downloading models within WebUI",
+            "Add an interface for browsing and downloading models within WebUI",
             gr.Checkbox,
             {"interactive": True},
             section=section)

@@ -61,7 +61,7 @@ This extension need to get extra network's cards id. Which is added since **2023
 ### Some of the following information may not up-to-date. Most functionality should be the same or similar, but many changes post-v1.6 have not been documented as of yet. Images may not match 1:1 with the current state of the extension.
 
 ## Scanning Models
-Go to extension tab "Civitai Helper". There is a button called "Scan model".
+Go to extension tab "Helper". There is a button called "Scan model".
 
 ![](img/extension_tab.jpg)
 
@@ -195,7 +195,7 @@ In these cases, you can always link a model to civitai by filling its URL in thi
 
 
 ## Settings
-While many options are provided in the Civitai Helper's extension tab, a dedicated settings section can be found in WebUI's Setting's tab. Here you will find a variety of options that are either not available in the Civitai Helper tab or that can be set here so that they do not reset when you reload the page. For example, you can hide buttons added by the extension that you do not use, enable always showing buttons to make functionality more touch-screen friendly, or choose to download the highest resolution versions of preview images available.
+While many options are provided in the Helper tab, a dedicated settings section can be found in WebUI's Setting's tab. Here you will find a variety of options that are either not available in the Helper tab or that can be set here so that they do not reset when you reload the page. For example, you can hide buttons added by the extension that you do not use, enable always showing buttons to make functionality more touch-screen friendly, or choose to download the highest resolution versions of preview images available.
 
 The next couple sections explain some of the more advanced option.
 
@@ -234,7 +234,7 @@ There was a Localization issue if you are not using English version of SD webui.
 Turn off cloud based localization extension, use normal localization extension.
 
 #### Other case
-First of all, make sure you clicked "Refresh Civitai Helper" button.
+First of all, make sure you clicked the refresh button in the Helper tab.
 
 If issue is still there, then only reason is you are not using the latest SD webui. So, Make sure you updated it.
 

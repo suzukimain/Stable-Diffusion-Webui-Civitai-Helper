@@ -74,7 +74,7 @@ def request_get(
         if status_code == 401:
             return (
                 False,
-                "This download requires Authentication. Please add an API Key to Civitai Helper's settings to continue this download. See [Wiki](https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper/wiki/Civitai-API-Key) for details on how to create an API Key."
+                "This download requires Authentication. Please add an API Key to Helper settings to continue this download. See [Wiki](https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper/wiki/Civitai-API-Key) for details on how to create an API Key."
             )
 
         if status_code == 416:
@@ -166,12 +166,10 @@ def download_progress(
                 url,
                 headers=headers_with_range,
             )
-
         except requests.exceptions.HTTPError as dl_error:
             # 416 - Range Not Satisfiable
-
             if dl_error.response.status_code != 416:
-                util.printD(f"An unhandled error has occurred while requesting data: {dl_error.response.status_cude}.")
+                util.printD(f"An unhandled error has occurred while requesting data: {dl_error.response.status_code}.")
                 raise
 
             util.printD("Could not resume download from existing temporary file. Restarting download.")
@@ -363,7 +361,7 @@ def dl_file(
         except(KeyError):
             yield (
                 False,
-                f"Could not get file size from Civitai. If Civitai is not having network issues, this can happen if you do not provide an API key in Civitai Helper's settings. Please see https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper/wiki/Civitai-API-Key for more information."
+                "Could not get file size from Civitai. If Civitai is not having network issues, this can happen if you do not provide an API key in Helper settings. Please see https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper/wiki/Civitai-API-Key for more information."
             )
             return
 

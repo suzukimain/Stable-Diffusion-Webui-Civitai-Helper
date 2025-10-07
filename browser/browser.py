@@ -1,5 +1,5 @@
 """ -*- coding: UTF-8 -*-
-browser.py - Civitai Browser for Civitai Helper
+browser.py - Model Browser for Helper
 """
 
 import os
@@ -111,7 +111,7 @@ def make_ui():
         ]
 
     with gr.Row():
-        gr.Markdown("# Browse and Search Civitai")
+        gr.Markdown("# Browse and Search Models")
 
     with gr.Row():
         gr.Markdown("Tip: You can save your choices as defaults by selecting the options you'd like and then going to `Settings -> Other -> Defaults` and hitting `Apply`!")

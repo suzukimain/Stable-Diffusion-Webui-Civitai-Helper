@@ -15,7 +15,7 @@ model_types = list(model.folders.keys())
 def scan_models_section():
     """ Scan Models Section """
     with gr.Row():
-        gr.Markdown("### Scan Models for Civitai")
+        gr.Markdown("### Scan Models")
     with gr.Row():
         with gr.Column():
             scan_model_types_drop = gr.CheckboxGroup(
@@ -86,8 +86,8 @@ def get_model_info_by_url_section():
     no_info_model_names = civitai.get_model_names_by_input("ckp", False)
 
     with gr.Column():
-        gr.Markdown("### Get Model Info from Civitai by URL")
-        gr.Markdown("Use this when scanning can not find a local model on civitai")
+        gr.Markdown("### Get Model Info by URL")
+        gr.Markdown("Use this when scanning can not find a local model by hash")
         with gr.Row():
             with gr.Column(scale=2):
                 model_type_drop = gr.Dropdown(
@@ -115,13 +115,13 @@ def get_model_info_by_url_section():
         with gr.Row():
             with gr.Column(scale=2, elem_classes="justify-bottom"):
                 model_url_or_id_txtbox = gr.Textbox(
-                    label="Civitai URL",
+                    label="Model URL",
                     lines=1,
                     value=""
                 )
             with gr.Column(scale=1, elem_classes="justify-bottom"):
                 get_civitai_model_info_by_id_btn = gr.Button(
-                    value="Get Model Info from Civitai",
+                    value="Get Model Info",
                     variant="primary"
                 )
 
