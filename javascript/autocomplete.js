@@ -24,6 +24,15 @@ function setupAutocomplete(targetSelector, fetcher) {
   input.parentNode.style.position = "relative";
   input.parentNode.appendChild(dropdown);
 
+  const MIN_DROPDOWN_WIDTH = 220;
+  const syncDropdownWidth = () => {
+    const width = input.getBoundingClientRect().width || input.offsetWidth || MIN_DROPDOWN_WIDTH;
+    dropdown.style.minWidth = `${Math.max(width, MIN_DROPDOWN_WIDTH)}px`;
+  };
+  syncDropdownWidth();
+  input.addEventListener("focus", syncDropdownWidth);
+  window.addEventListener("resize", syncDropdownWidth);
+
   let timer = null;
   let selectedIndex = -1;
 
