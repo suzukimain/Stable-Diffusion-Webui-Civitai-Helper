@@ -5,6 +5,17 @@
 ## About Webui Helper
 This extension provides the ability to download models and model metadata from Civitai. Data such as activation keywords, model description, version information, and model previews for models hosted on Civitai can be at your fingertips without having to navigate away from stable diffusion webui.
 
+## Features 
+
+#### New Features
+
+- [X] Add autocomplete suggestions
+    - Add suggestions to the Query search box in the Helper Browser tab
+    - Add suggestions to the Tag search box in the Helper Browser tab
+
+- [ ] Support Hugging Face
+
+
 ## About This Version of Webui Helper
 This is my personal version of Stable-Diffusion-Webui-Civitai-Helper. I started it entirely because the version I was using broke when SD-webui v1.5 came out and I needed it to work. Since then, I have added functionality that I wanted and have made best-effort attempts to maintain compatibility with older versions of sd-webui, but I do not use older versions and therefore do not test on older versions.
 
