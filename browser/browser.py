@@ -88,7 +88,7 @@ def make_ui():
         meta = content.get("meta", {})
         next_page = meta.get("next_page", None)
 
-        if not next_page in state:
+        if next_page not in state:
             state["pages"].append(next_page)
 
         cards = make_cards(content["models"])
