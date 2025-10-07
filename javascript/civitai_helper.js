@@ -501,7 +501,7 @@ window.ch_downloader = function(e, model_id) {
     tabs = document.querySelectorAll("#tabs button");
     for (let tab of tabs) {
         let text = tab.textContent.trim();
-        if (text == "Civitai Helper") { // localization nightmare
+        if (text == "Helper" || text == "Civitai Helper") { // localization nightmare
             tab.click();
             break;
         }

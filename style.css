@@ -124,7 +124,7 @@ blockquote ol {
 
 /* end of Lobe theme */
 
-/* Civitai Helper Browser */
+/* Helper Browser */
 /* Perhaps figure out a less hacky way to write this... */
 #ch_search {
     overflow: scroll;
@@ -353,4 +353,4 @@ blockquote ol {
         outline: 2px gold solid;
     }
 }
-/* End of Civitai Helper Browser */
+/* End of Helper Browser */

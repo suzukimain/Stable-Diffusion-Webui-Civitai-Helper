@@ -1,5 +1,5 @@
 """ -*- coding: UTF-8 -*-
-browser.py - Civitai Browser for Civitai Helper
+browser.py - Model Browser for Helper
 """
 
 import os
@@ -88,7 +88,7 @@ def make_ui():
         meta = content.get("meta", {})
         next_page = meta.get("next_page", None)
 
-        if not next_page in state:
+        if next_page not in state:
             state["pages"].append(next_page)
 
         cards = make_cards(content["models"])
@@ -111,7 +111,7 @@ def make_ui():
         ]
 
     with gr.Row():
-        gr.Markdown("# Browse and Search Civitai")
+        gr.Markdown("# Browse and Search Models")
 
     with gr.Row():
         gr.Markdown("Tip: You can save your choices as defaults by selecting the options you'd like and then going to `Settings -> Other -> Defaults` and hitting `Apply`!")
@@ -359,7 +359,7 @@ def parse_civitai_response(content):
 
 
 def quick_template_from_file(filename):
-    file = os.path.join(util.script_dir, "browser/templates", filename)
+    file = os.path.join(str(util.script_dir), "browser/templates", str(filename))
     with open(file, "r", encoding="utf-8") as text:
         template = Template(text.read())
     return template
