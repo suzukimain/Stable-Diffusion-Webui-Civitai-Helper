@@ -2,15 +2,11 @@
 
 <img src="https://visitor-badge.laobi.icu/badge?page_id=suzukimain.Stable-Diffusion-Webui-Civitai-Helper" alt="Visitor Badge">
 
-### Language
-[中文(ChatGPT)](README.cn.md)
-[日本語(ChatGPT)](README.jp.md)
-[한국어(ChatGPT)](README.kr.md)
 
-## About Civitai Helper
+## About Webui Helper
 This extension provides the ability to download models and model metadata from Civitai. Data such as activation keywords, model description, version information, and model previews for models hosted on Civitai can be at your fingertips without having to navigate away from stable diffusion webui.
 
-## About This Version of Civitai Helper
+## About This Version of Webui Helper
 This is my personal version of Stable-Diffusion-Webui-Civitai-Helper. I started it entirely because the version I was using broke when SD-webui v1.5 came out and I needed it to work. Since then, I have added functionality that I wanted and have made best-effort attempts to maintain compatibility with older versions of sd-webui, but I do not use older versions and therefore do not test on older versions.
 
 I intend to keep this working for as long as I am able, but this is simply a hobby project and I am nowhere near as skilled as other extension developers with more experience. I am likely to dip out for long periods at a time, possibly forever if I lose interest. I am prone to errors and bugs are to be expected.
