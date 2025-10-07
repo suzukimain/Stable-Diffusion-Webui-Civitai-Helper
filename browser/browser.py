@@ -359,7 +359,7 @@ def parse_civitai_response(content):
 
 
 def quick_template_from_file(filename):
-    file = os.path.join(util.script_dir, "browser/templates", filename)
+    file = os.path.join(str(util.script_dir), "browser/templates", str(filename))
     with open(file, "r", encoding="utf-8") as text:
         template = Template(text.read())
     return template
