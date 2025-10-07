@@ -98,40 +98,44 @@ def get_custom_model_folder():
     """
     util.printD("Get Custom Model Folder")
 
-    if shared.cmd_opts.embeddings_dir and os.path.isdir(shared.cmd_opts.embeddings_dir):
-        folders["ti"] = shared.cmd_opts.embeddings_dir
+    embeddings_dir = getattr(shared.cmd_opts, "embeddings_dir", None)
+    if embeddings_dir and os.path.isdir(embeddings_dir):
+        folders["ti"] = embeddings_dir
 
-    if shared.cmd_opts.hypernetwork_dir and os.path.isdir(shared.cmd_opts.hypernetwork_dir):
-        folders["hyper"] = shared.cmd_opts.hypernetwork_dir
+    hypernetwork_dir = getattr(shared.cmd_opts, "hypernetwork_dir", None)
+    if hypernetwork_dir and os.path.isdir(hypernetwork_dir):
+        folders["hyper"] = hypernetwork_dir
 
-    if shared.cmd_opts.ckpt_dir and os.path.isdir(shared.cmd_opts.ckpt_dir):
-        folders["ckp"] = shared.cmd_opts.ckpt_dir
+    ckpt_dir = getattr(shared.cmd_opts, "ckpt_dir", None)
+    if ckpt_dir and os.path.isdir(ckpt_dir):
+        folders["ckp"] = ckpt_dir
 
-    if shared.cmd_opts.lora_dir and os.path.isdir(shared.cmd_opts.lora_dir):
-        folders["lora"] = shared.cmd_opts.lora_dir
+    lora_dir = getattr(shared.cmd_opts, "lora_dir", None)
+    if lora_dir and os.path.isdir(lora_dir):
+        folders["lora"] = lora_dir
 
-    if shared.cmd_opts.vae_dir and os.path.isdir(shared.cmd_opts.vae_dir):
-        folders["vae"] = shared.cmd_opts.vae_dir
+    vae_dir = getattr(shared.cmd_opts, "vae_dir", None)
+    if vae_dir and os.path.isdir(vae_dir):
+        folders["vae"] = vae_dir
 
     if util.get_opts("ch_dl_lyco_to_lora"):
         folders["lycoris"] = folders["lora"]
         return
 
-    try:
-        # pre-1.5.0
-        if os.path.isdir(shared.cmd_opts.lyco_dir):
-            folders["lycoris"] = shared.cmd_opts.lyco_dir
+    # LyCORIS folder resolution across WebUI versions
+    lyco_dir = getattr(shared.cmd_opts, "lyco_dir", None)
+    if lyco_dir and os.path.isdir(lyco_dir):
+        folders["lycoris"] = lyco_dir
+        return
 
-    except AttributeError:
-        try:
-            # sd-webui v1.5.1 added a backcompat option for lyco.
-            if os.path.isdir(shared.cmd_opts.lyco_dir_backcompat):
-                folders["lycoris"] = shared.cmd_opts.lyco_dir_backcompat
+    lyco_dir_backcompat = getattr(shared.cmd_opts, "lyco_dir_backcompat", None)
+    if lyco_dir_backcompat and os.path.isdir(lyco_dir_backcompat):
+        folders["lycoris"] = lyco_dir_backcompat
+        return
 
-        except AttributeError:
-            # v1.5.0 has no options for the Lyco dir:
-            # it is hardcoded as 'os.path.join(paths.models_path, "LyCORIS")'
-            return
+    # v1.5.0 had LyCORIS hardcoded under paths.models_path/LyCORIS; if neither option exists,
+    # keep the default in folders
+    return
 
 
 def locate_model_from_partial(root, model_name):
