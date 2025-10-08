@@ -183,10 +183,21 @@ def on_ui_tabs():
     if util.get_opts("ch_civitai_browser"):
         civitai_helper_browser = browser.civitai_search()
 
+        if util.GRADIO_FALLBACK or not hasattr(civitai_helper_browser, "render"):
+            return (
+                (civitai_helper, "Helper", "civitai_helper"),
+                (civitai_helper_browser, "Helper Browser", "civitai_helper_browser")
+            )
+
+        with gr.Blocks(analytics_enabled=False) as helper_browser_container:
+            with gr.Tabs(elem_id="ch_helper_browser_tabs"):
+                with gr.Tab("Civitai", elem_id="ch_browser_tab_civitai"):
+                    civitai_helper_browser.render()
+
         # the third parameter is the element id on html, with a "tab_" as prefix
         return (
             (civitai_helper, "Helper", "civitai_helper"),
-            (civitai_helper_browser, "Helper Browser", "civitai_helper_browser")
+            (helper_browser_container, "Helper Browser", "civitai_helper_browser")
         )
 
     return ((civitai_helper, "Helper", "civitai_helper"),)
