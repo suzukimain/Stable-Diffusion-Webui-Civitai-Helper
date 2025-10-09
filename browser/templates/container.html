@@ -1,5 +1,110 @@
+<style>
+  /* Layout */
+  #ch_browser_topbar{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:1rem;
+    flex-wrap:wrap;
+    margin-bottom:0.75rem;
+  }
+  /* Query wrapper sizing */
+  #ch_browser_topbar .ch-query-wrapper{flex:2 1 480px; min-width:320px;}
+  /* Search button sizing */
+  #ch_browser_topbar .ch-search-btn{flex:1 1 160px; min-width:140px; display:flex; align-items:stretch;}
+  #ch_browser_topbar .ch-search-btn button{width:100%;}
+
+  /* Body layout: sidebar + results */
+  #ch_browser_body{
+    display:flex;
+    align-items:flex-start;
+    gap:1rem;
+  }
+  /* Sidebar (fixed width, sticky) */
+  #ch_browser_sidebar{
+    flex:0 0 300px;
+    max-width:300px;
+    width:300px;
+    position:sticky;
+    top:0;
+    align-self:flex-start;
+  }
+  /* Results area */
+  #ch_browser_results{
+    flex:1 1 auto;
+    min-width:0;
+  }
+
+  /* Cards grid */
+  #ch_search .cards_container{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:12px;
+  }
+
+  .model_card{
+    border:1px solid var(--border-color,#444);
+    border-radius:6px;
+    padding:6px;
+    background:var(--background-fill-primary,#222);
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    outline:none;
+  }
+  .model_card:focus{
+    outline:2px solid #3b82f6;
+    outline-offset:2px;
+  }
+  .model_card .preview_container{
+    width:200px;
+    height:200px;
+    margin:0 auto 4px;
+    overflow:hidden;
+    border-radius:4px;
+    background:#111;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .model_card .model_preview{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .model_card .title{
+    font-weight:600;
+    font-size:.9rem;
+    line-height:1.2;
+    max-height:2.4em;
+    overflow:hidden;
+  }
+  .model_card .description{
+    font-size:.75rem;
+    line-height:1.25;
+    max-height:6.5em;
+    overflow:auto;
+  }
+  .model_card .ux a{
+    text-decoration:none;
+  }
+
+  /* Focus style for links inside card */
+  .model_card a:focus{
+    outline:2px solid #10b981;
+    outline-offset:2px;
+  }
+
+  /* Responsive: stack sidebar below on narrow screens */
+  @media (max-width: 880px){
+    #ch_browser_body{flex-direction:column;}
+    #ch_browser_sidebar{position:static; width:100%; max-width:100%; display:flex; flex-wrap:wrap; gap:.75rem;}
+    #ch_browser_sidebar > *{flex:1 1 220px;}
+  }
+</style>
 <div class="search_container" id="ch_search">
-    <div class="cards_container">
-        ${cards}
-    </div>
+  <div class="cards_container" role="list">
+      ${cards}
+  </div>
 </div>

@@ -1,6 +1,10 @@
-<div class="model_card" id="ch_${model_id}_card">
+<div class="model_card" id="ch_${model_id}_card"
+     role="button"
+     tabindex="0"
+     aria-label="Open / download model ${name}"
+     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();ch_downloader(event, ${model_id});}">
     <div class="preview">
-        <a href="" onclick="ch_downloader(event, ${model_id})">
+        <a href="" onclick="ch_downloader(event, ${model_id})" aria-label="Download / details for ${name}">
             <div class="preview_container">
                 ${preview}
             </div>
@@ -9,7 +13,7 @@
             ${name}
         </div>
         <div class="ux">
-            <a href="${url}" target="_blank" onclick="(function(e){e.stopPropagation()})(event)">🌐</a>
+            <a href="${url}" target="_blank" onclick="(function(e){e.stopPropagation()})(event)" aria-label="Open Civitai page for ${name}">🌐</a>
         </div>
         <div class="model_meta">
             <span>

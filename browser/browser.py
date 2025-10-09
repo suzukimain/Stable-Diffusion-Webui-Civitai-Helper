@@ -110,100 +110,75 @@ def make_ui():
             gr.Button(interactive=next_page is not None)
         ]
 
-    with gr.Row():
-        gr.Markdown("# Browse and Search Models")
+    with gr.Box(elem_id="ch_browser_topbar"):
+        with gr.Row():
+            with gr.Column(elem_classes="ch-query-wrapper"):
+                ch_query_txt = gr.Textbox(
+                    label="Query",
+                    value="",
+                    elem_id="ch_browser_query",
+                    show_label=False,
+                    placeholder="Search models..."
+                )
+            with gr.Column(elem_classes="ch-search-btn"):
+                ch_search_btn = gr.Button(
+                    variant="primary",
+                    value="Search",
+                    elem_id="ch_browser_search_button"
+                )
 
-    with gr.Row():
-        gr.Markdown("Tip: You can save your choices as defaults by selecting the options you'd like and then going to `Settings -> Other -> Defaults` and hitting `Apply`!")
-
-    with gr.Row(equal_height=True):
-        ch_query_txt = gr.Textbox(
-            label="Query",
-            value="",
-            elem_id="ch_browser_query"
-        )
-        ch_tag_txt = gr.Textbox(
-            label="Tag",
-            value="",
-            elem_id="ch_browser_tag"
-        )
-        ch_age_drop = gr.Dropdown(
-            label="Model Age",
-            value="AllTime",
-            choices=[
-                "AllTime",
-                "Year",
-                "Month",
-                "Week",
-                "Day"
-            ]
-        )
-        ch_sort_drop = gr.Dropdown(
-            label="Sort By",
-            value="Newest",
-            choices=[
-                "Highest Rated",
-                "Most Downloaded",
-                "Newest"
-            ]
-        )
-
-    with gr.Row(equal_height=True):
-        ch_base_model_drop = gr.Dropdown(
-            label="Base Model",
-            value=None,
-            multiselect=True,
-            choices=SUPPORTED_MODELS
-        )
-        ch_type_drop = gr.Dropdown(
-            label="Model Type",
-            value=None,
-            multiselect=True,
-            choices=[
-                # TODO: Perhaps make this list external so it can be updated independent of CH version.
-                "Checkpoint",
-                "TextualInversion",
-                "Hypernetwork",
-                "AestheticGradient",
-                "LORA",
-                "LoCon",
-                "DoRA",
-                "Controlnet",
-                "Poses",
-                "Workflows",
-                "MotionModule",
-                "Upscaler",
-                "Wildcards",
-                "VAE"
-            ]
-        )
-
-        ch_nsfw_ckb = gr.Checkbox(
-            label="Allow NSFW Models",
-            value=util.get_opts("ch_nsfw_threshold") != "PG",
-        )
-
-        ch_search_btn = gr.Button(
-            variant="primary",
-            value="Search",
-        )
-
-    with gr.Row(equal_height=True):
-        ch_prev_btn = gr.Button(
-            value="Previous Page",
-            interactive=False
-        )
-        ch_next_btn = gr.Button(
-            value="Next Page",
-            interactive=False
-        )
-
-    with gr.Box():
-        ch_search_results_html = gr.HTML(
-            value="",
-            label="Search Results",
-            elem_id="ch_model_search_results"
-        )
+    with gr.Row(elem_id="ch_browser_body"):
+        with gr.Column(elem_id="ch_browser_sidebar"):
+            ch_tag_txt = gr.Textbox(
+                label="Tag",
+                value="",
+                elem_id="ch_browser_tag"
+            )
+            ch_age_drop = gr.Dropdown(
+                label="Model Age",
+                value="AllTime",
+                choices=["AllTime","Year","Month","Week","Day"]
+            )
+            ch_sort_drop = gr.Dropdown(
+                label="Sort By",
+                value="Newest",
+                choices=["Highest Rated","Most Downloaded","Newest"]
+            )
+            ch_base_model_drop = gr.Dropdown(
+                label="Base Model",
+                value=None,
+                multiselect=True,
+                choices=SUPPORTED_MODELS
+            )
+            ch_type_drop = gr.Dropdown(
+                label="Model Type",
+                value=None,
+                multiselect=True,
+                choices=[
+                    "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
+                    "LORA","LoCon","DoRA","Controlnet","Poses","Workflows","MotionModule",
+                    "Upscaler","Wildcards","VAE"
+                ]
+            )
+            ch_nsfw_ckb = gr.Checkbox(
+                label="Allow NSFW Models",
+                value=util.get_opts("ch_nsfw_threshold") != "PG",
+            )
+            with gr.Row():
+                ch_prev_btn = gr.Button(
+                    value="Previous Page",
+                    interactive=False
+                )
+                ch_next_btn = gr.Button(
+                    value="Next Page",
+                    interactive=False
+                )
+        with gr.Column(elem_id="ch_browser_results"):
+            ch_search_results_html = gr.HTML(
+                value="",
+                label="Search Results",
+                elem_id="ch_model_search_results"
+            )
 
     inputs = [
         ch_search_state,
@@ -228,7 +203,6 @@ def make_ui():
         inputs=inputs,
         outputs=outputs
     )
-
     ch_prev_btn.click(
         perform_search,
         inputs=inputs,
@@ -365,6 +339,31 @@ def quick_template_from_file(filename):
     return template
 
 
+def make_cards(models):
+    card_template = quick_template_from_file("model_card.html")
+    preview_template = quick_template_from_file("image_preview.html")
+    # video_preview_template = quick_template_from_file("video_preview.html")
+
+    cards = []
+    for model in models:
+        preview = ""
+        if model["preview"]["url"]:
+            preview = preview_template.safe_substitute({"preview_url": model["preview"]["url"]})
+
+        card = card_template.safe_substitute({
+            "name": model["name"],
+            "preview": preview,
+            "url": model["url"],
+            "base_models": " / ".join(model["base_models"]),
+            #"versions": model["versions"],
+            "description": model["description"],
+            "type": model["type"],
+            "model_id": model["id"],
+        })
+
+        cards.append(card)
+
+    return cards
 def make_cards(models):
     card_template = quick_template_from_file("model_card.html")
     preview_template = quick_template_from_file("image_preview.html")
