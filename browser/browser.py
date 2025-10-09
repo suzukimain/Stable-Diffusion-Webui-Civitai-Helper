@@ -110,100 +110,151 @@ def make_ui():
             gr.Button(interactive=next_page is not None)
         ]
 
-    with gr.Row():
-        gr.Markdown("# Browse and Search Models")
+    gr.HTML(
+        """
+<style>
+#ch_filter_wrapper {width:100%;}
+#ch_browser_query {margin-bottom:.35rem;}
+#ch_browser_query input,
+#ch_browser_query textarea {
+  /* Height already ~0.7 of default inputs (target requirement) */
+  height:2.1em;
+  padding:.25em .7em;
+  font-size:1.02rem;
+  line-height:1.1;
+}
+#ch_filter_bar {
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  margin-bottom:.25rem;
+}
+/* Make query box take double horizontal space vs a normal 1 unit element */
+#ch_filter_bar #ch_browser_query {flex:2 1 0;} /* width x2 */
+#ch_filter_bar #ch_filter_toggle_btn {flex:0 0 auto;} /* keep toggle button compact */
+/* Optional: prevent query label from shrinking too much */
+#ch_filter_bar #ch_browser_query label {white-space:nowrap;}
+#ch_filter_toggle_btn button {
+  min-width:90px;
+}
+#ch_filter_sidebar {
+  transition:transform .25s ease, opacity .25s ease;
+  will-change: transform;
+}
+#ch_filter_sidebar.closed {
+  transform:translateX(-110%);
+  opacity:0;
+  pointer-events:none;
+}
+#ch_results_container {
+  transition:margin-left .25s ease, width .25s ease;
+  width:100%;
+}
+@media (max-width: 900px){
+  #ch_filter_sidebar {
+    position:fixed;
+    top:0;left:0;bottom:0;
+    z-index:1001;
+    width:280px;
+    max-width:80vw;
+    overflow-y:auto;
+    background:var(--body-background-fill);
+    box-shadow:2px 0 12px rgba(0,0,0,.35);
+    padding:0 .5rem .75rem .5rem;
+  }
+  #ch_filter_sidebar.closed {transform:translateX(-120%);}
+  #ch_filter_backdrop {
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.35);
+    backdrop-filter:blur(2px);
+    z-index:1000;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  #ch_filter_backdrop.show {
+    opacity:1;
+    pointer-events:auto;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  #ch_filter_sidebar,
+  #ch_results_container,
+  #ch_filter_backdrop {
+    transition:none !important;
+  }
+}
+</style>
+        """
+    )
+    with gr.Column(elem_id="ch_filter_wrapper"):
+        with gr.Row(elem_id="ch_filter_bar"):
+            ch_query_txt = gr.Textbox(
+                label="Query",
+                value="",
+                elem_id="ch_browser_query",
+                placeholder="Enter model name or keywords (Auto-search 0.6s debounce)",
+            )
+            ch_filter_toggle_btn = gr.Button(
+                value="filters",
+                elem_id="ch_filter_toggle_btn"
+            )
 
-    with gr.Row():
-        gr.Markdown("Tip: You can save your choices as defaults by selecting the options you'd like and then going to `Settings -> Other -> Defaults` and hitting `Apply`!")
-
-    with gr.Row(equal_height=True):
-        ch_query_txt = gr.Textbox(
-            label="Query",
-            value="",
-            elem_id="ch_browser_query"
-        )
-        ch_tag_txt = gr.Textbox(
-            label="Tag",
-            value="",
-            elem_id="ch_browser_tag"
-        )
-        ch_age_drop = gr.Dropdown(
-            label="Model Age",
-            value="AllTime",
-            choices=[
-                "AllTime",
-                "Year",
-                "Month",
-                "Week",
-                "Day"
-            ]
-        )
-        ch_sort_drop = gr.Dropdown(
-            label="Sort By",
-            value="Newest",
-            choices=[
-                "Highest Rated",
-                "Most Downloaded",
-                "Newest"
-            ]
-        )
-
-    with gr.Row(equal_height=True):
-        ch_base_model_drop = gr.Dropdown(
-            label="Base Model",
-            value=None,
-            multiselect=True,
-            choices=SUPPORTED_MODELS
-        )
-        ch_type_drop = gr.Dropdown(
-            label="Model Type",
-            value=None,
-            multiselect=True,
-            choices=[
-                # TODO: Perhaps make this list external so it can be updated independent of CH version.
-                "Checkpoint",
-                "TextualInversion",
-                "Hypernetwork",
-                "AestheticGradient",
-                "LORA",
-                "LoCon",
-                "DoRA",
-                "Controlnet",
-                "Poses",
-                "Workflows",
-                "MotionModule",
-                "Upscaler",
-                "Wildcards",
-                "VAE"
-            ]
-        )
-
-        ch_nsfw_ckb = gr.Checkbox(
-            label="Allow NSFW Models",
-            value=util.get_opts("ch_nsfw_threshold") != "PG",
-        )
-
-        ch_search_btn = gr.Button(
-            variant="primary",
-            value="Search",
-        )
-
-    with gr.Row(equal_height=True):
-        ch_prev_btn = gr.Button(
-            value="Previous Page",
-            interactive=False
-        )
-        ch_next_btn = gr.Button(
-            value="Next Page",
-            interactive=False
-        )
-
-    with gr.Box():
-        ch_search_results_html = gr.HTML(
-            value="",
-            label="Search Results",
-            elem_id="ch_model_search_results"
-        )
+    with gr.Row(elem_id="ch_main_area", equal_height=False):
+        with gr.Column(scale=0, min_width=0, elem_id="ch_filter_sidebar"):
+            ch_tag_txt = gr.Textbox(
+                label="Tag",
+                value="",
+                elem_id="ch_browser_tag"
+            )
+            ch_age_drop = gr.Dropdown(
+                label="Model Age",
+                value="AllTime",
+                choices=["AllTime","Year","Month","Week","Day"]
+            )
+            ch_sort_drop = gr.Dropdown(
+                label="Sort By",
+                value="Newest",
+                choices=["Highest Rated","Most Downloaded","Newest"]
+            )
+            ch_base_model_drop = gr.Dropdown(
+                label="Base Model",
+                value=None,
+                multiselect=True,
+                choices=SUPPORTED_MODELS
+            )
+            ch_type_drop = gr.Dropdown(
+                label="Model Type",
+                value=None,
+                multiselect=True,
+                choices=[
+                    "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
+                    "LORA","LoCon","DoRA","Controlnet","Poses","Workflows",
+                    "MotionModule","Upscaler","Wildcards","VAE"
+                ]
+            )
+            ch_nsfw_ckb = gr.Checkbox(
+                label="Allow NSFW Models",
+                value=util.get_opts("ch_nsfw_threshold") != "PG",
+            )
+            ch_search_btn = gr.Button(
+                variant="primary",
+                value="Search",
+                elem_id="ch_browser_search_btn"
+            )
+            with gr.Row():
+                ch_prev_btn = gr.Button(value="Prev", interactive=False)
+                ch_next_btn = gr.Button(value="Next", interactive=False)
+        with gr.Column(scale=4, elem_id="ch_results_container"):
+            gr.HTML("<div id='ch_filter_backdrop' class=''></div>")
+            with gr.Box():
+                ch_search_results_html = gr.HTML(
+                    value="",
+                    label="Search Results",
+                    elem_id="ch_model_search_results"
+                )
+    # ===== 新レイアウト終了 =====
 
     inputs = [
         ch_search_state,
@@ -215,30 +266,11 @@ def make_ui():
         ch_type_drop,
         ch_nsfw_ckb
     ]
+    outputs = [ch_search_state, ch_search_results_html, ch_prev_btn, ch_next_btn]
 
-    outputs = [
-        ch_search_state,
-        ch_search_results_html,
-        ch_prev_btn,
-        ch_next_btn
-    ]
-
-    ch_search_btn.click(
-        perform_search,
-        inputs=inputs,
-        outputs=outputs
-    )
-
-    ch_prev_btn.click(
-        perform_search,
-        inputs=inputs,
-        outputs=outputs
-    )
-    ch_next_btn.click(
-        perform_search,
-        inputs=inputs,
-        outputs=outputs
-    )
+    ch_search_btn.click(perform_search, inputs=inputs, outputs=outputs)
+    ch_prev_btn.click(perform_search, inputs=inputs, outputs=outputs)
+    ch_next_btn.click(perform_search, inputs=inputs, outputs=outputs)
 
 def array_frags(name, vals, frags):
     if len(vals) == 0:
