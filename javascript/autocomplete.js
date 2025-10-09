@@ -174,25 +174,6 @@ onUiLoaded(() => {
   setupAutocomplete("#ch_browser_tag textarea", civitaiTagFetcher);
   setupAutocomplete("#ch_browser_tag input", civitaiTagFetcher);
 
-  function initAutoSearch() {
-    const btn = document.getElementById("ch_browser_search_btn");
-    if (!btn) return;
-    const targets = [
-      ...document.querySelectorAll("#ch_browser_query textarea"),
-      ...document.querySelectorAll("#ch_browser_query input")
-    ];
-    let timer = null;
-    targets.forEach(el => {
-      el.addEventListener("input", () => {
-        clearTimeout(timer);
-        const val = el.value.trim();
-        if (val.length === 0) return;
-        timer = setTimeout(() => btn.click(), 600);
-      });
-    });
-  }
-  initAutoSearch();
- 
   function initSidebarToggle(){
     const sidebar = document.getElementById("ch_filter_sidebar");
     const toggleBtn = document.querySelector("#ch_filter_toggle_btn button, #ch_filter_toggle_btn"); // Gradio wrap対策

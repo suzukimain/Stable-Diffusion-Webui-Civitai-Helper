@@ -222,7 +222,7 @@ def make_ui():
                 label="Query",
                 value="",
                 elem_id="ch_browser_query",
-                placeholder="Enter model name or keywords (Auto-search 0.6s debounce)",
+                placeholder="Enter model name or keywords",  # removed auto-search wording
             )
             ch_filter_toggle_btn = gr.Button(
                 value="filters",
