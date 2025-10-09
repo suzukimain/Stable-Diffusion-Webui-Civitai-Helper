@@ -114,37 +114,62 @@ def make_ui():
         """
 <style>
 :root {
-  --ch-sidebar-width: 250px; /* Base width for desktop sidebar */
+  --ch-sidebar-width: 250px;
+  --ch-card-min: 200px; /* min thumbnail/card width */
 }
+/* ---- Top bar ---- */
 #ch_filter_wrapper {width:100%;}
-#ch_browser_query {margin-bottom:.35rem;}
-#ch_browser_query input,
-#ch_browser_query textarea {
-  /* Query input height approx 0.7 of default inputs */
-  height:2.1em;
-  padding:.25em .7em;
-  font-size:1.02rem;
-  line-height:1.1;
-}
 #ch_filter_bar {
   display:flex;
   align-items:center;
-  gap:.5rem;
-  margin-bottom:.25rem;
+  gap:.6rem;
+  margin-bottom:.4rem;
 }
-#ch_filter_bar #ch_browser_query {flex:2 1 0;}
+/* Reordered: button first, then query */
 #ch_filter_bar #ch_filter_toggle_btn {flex:0 0 auto;}
-#ch_filter_bar #ch_browser_query label {white-space:nowrap;}
-#ch_filter_toggle_btn button {min-width:90px;}
-
+#ch_filter_bar #ch_browser_query {flex:1 1 auto;}
+#ch_browser_query {margin:0;}
+#ch_browser_query label {display:none;} /* hide label to save horizontal space */
+#ch_browser_query input,
+#ch_browser_query textarea {
+  height:2.1em;
+  padding:.25em .75em;
+  font-size:1.02rem;
+  line-height:1.1;
+}
+/* Funnel toggle button stylings */
+#ch_filter_toggle_btn button {
+  --btn-size:2.1em;
+  width:var(--btn-size);
+  height:var(--btn-size);
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#333;
+  color:#fff;
+  border-radius:8px;
+  position:relative;
+  font-size:0; /* hide any text */
+}
+#ch_filter_toggle_btn button::before {
+  content:"";
+  width:55%;
+  height:55%;
+  background:#fff;
+  display:block;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='%23ffffff'><path d='M3 4h18c.55 0 1 .45 1 1 0 .21-.07.41-.2.58L15 14.01V20c0 .55-.45 1-1 1-.21 0-.41-.07-.58-.2l-4-3.2A1 1 0 0 1 9 16v-1.99L2.2 5.58A1 1 0 0 1 2 5c0-.55.45-1 1-1z'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M3 4h18c.55 0 1 .45 1 1 0 .21-.07.41-.2.58L15 14.01V20c0 .55-.45 1-1 1-.21 0-.41-.07-.58-.2l-4-3.2A1 1 0 0 1 9 16v-1.99L2.2 5.58A1 1 0 0 1 2 5c0-.55.45-1 1-1z'/></svg>") center / contain no-repeat;
+}
+#ch_filter_toggle_btn button[aria-expanded="true"] {background:#555;}
+#ch_filter_toggle_btn button:focus-visible {outline:2px solid #888; outline-offset:2px;}
+/* ---- Layout ---- */
 #ch_main_area {
-  /* Ensure predictable flex layout (sidebar + results) */
   display:flex;
   align-items:flex-start;
+  gap:0;
 }
-
 #ch_filter_sidebar {
-  /* Desktop (>=901px): persistent column whose width animates */
   flex:0 0 var(--ch-sidebar-width);
   width:var(--ch-sidebar-width);
   max-width:var(--ch-sidebar-width);
@@ -153,22 +178,75 @@ def make_ui():
   box-sizing:border-box;
 }
 #ch_filter_sidebar.closed {
-  /* Collapse without overlay on desktop */
   width:0;
   flex-basis:0;
   padding:0;
   opacity:0;
   overflow:hidden;
 }
-
 #ch_results_container {
   flex:1 1 auto;
   min-width:0;
-  transition: width .25s ease;
   width:100%;
+  transition: width .25s ease;
 }
-
-/* Mobile overlay behavior */
+/* ---- Cards Grid ---- */
+#ch_model_search_results .cards_container {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(var(--ch-card-min), 1fr));
+  gap:.75rem;
+  align-content:start;
+}
+#ch_model_search_results .model_card {
+  min-width:var(--ch-card-min);
+  background:var(--block-background-fill, #1e1e1e);
+  border:1px solid var(--block-border-color, #444);
+  border-radius:6px;
+  padding:.4rem .45rem .55rem;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  gap:.4rem;
+}
+#ch_model_search_results .model_card .preview_container {
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  border-radius:4px;
+  background:#222;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#ch_model_search_results .model_card .preview_container img,
+#ch_model_search_results .model_card .preview_container video {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+#ch_model_search_results .model_card .title {
+  font-size:.85rem;
+  font-weight:600;
+  line-height:1.1;
+  max-height:2.2em;
+  overflow:hidden;
+}
+#ch_model_search_results .model_card .model_meta {
+  display:flex;
+  justify-content:space-between;
+  font-size:.65rem;
+  opacity:.75;
+  gap:.5rem;
+}
+#ch_model_search_results .model_card .description {
+  font-size:.62rem;
+  line-height:1.1;
+  max-height:5.5em;
+  overflow:hidden;
+  opacity:.8;
+}
+/* Mobile overlay for sidebar */
 @media (max-width: 900px){
   #ch_filter_sidebar {
     position:fixed;
@@ -180,14 +258,13 @@ def make_ui():
     background:var(--body-background-fill);
     box-shadow:2px 0 12px rgba(0,0,0,.35);
     padding:0 .75rem .9rem .65rem;
-    /* Use transform only on mobile for slide-in */
     transform:translateX(0);
     transition:transform .25s ease, opacity .25s ease;
     opacity:1;
   }
   #ch_filter_sidebar.closed {
     transform:translateX(-120%);
-    width:var(--ch-sidebar-width); /* keep internal layout width for animation start */
+    width:var(--ch-sidebar-width);
     opacity:0;
   }
   #ch_filter_backdrop {
@@ -205,7 +282,6 @@ def make_ui():
     pointer-events:auto;
   }
 }
-
 @media (prefers-reduced-motion: reduce){
   #ch_filter_sidebar,
   #ch_results_container,
@@ -218,17 +294,16 @@ def make_ui():
     )
     with gr.Column(elem_id="ch_filter_wrapper"):
         with gr.Row(elem_id="ch_filter_bar"):
+            ch_filter_toggle_btn = gr.Button(  # moved before query
+                value=" ",  # icon handled via CSS ::before
+                elem_id="ch_filter_toggle_btn"
+            )
             ch_query_txt = gr.Textbox(
                 label="Query",
                 value="",
                 elem_id="ch_browser_query",
-                placeholder="Enter model name or keywords",  # removed auto-search wording
+                placeholder="Enter model name or keywords",
             )
-            ch_filter_toggle_btn = gr.Button(
-                value="filters",
-                elem_id="ch_filter_toggle_btn"
-            )
-
     with gr.Row(elem_id="ch_main_area", equal_height=False):
         with gr.Column(scale=0, min_width=0, elem_id="ch_filter_sidebar"):
             ch_tag_txt = gr.Textbox(
