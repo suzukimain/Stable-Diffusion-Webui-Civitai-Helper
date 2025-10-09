@@ -529,6 +529,7 @@ window.ch_downloader = function(e, model_id) {
     new_active.classList.add("ch_active_card");
 
     console.log("end ch_downloader");
+    return false;
 };
 
 
