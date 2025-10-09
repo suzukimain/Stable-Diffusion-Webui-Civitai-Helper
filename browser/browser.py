@@ -114,14 +114,28 @@ def make_ui():
     gr.HTML(
         """
 <style>
-#ch_search_bar{
+/* Root layout wrapper to control vertical ordering */
+#ch_browser_root{
+  display:flex;
+  flex-direction:column;
+  gap:.75rem;
+  width:100%;
+  position:relative;
+  padding-top:0;
+  margin-top:0;
+}
+/* Force search bar to be the first visible element */
+#ch_browser_root #ch_search_bar{
+  order:-1;
   display:flex;
   align-items:center;
   gap:.6rem;
   width:100%;
-  margin:0 0 .65rem 0;
+  margin:0;
+  padding:0 0 .55rem 0;
+  position:relative;
+  z-index:5;
 }
-#ch_search_bar .query_wrap{flex:1 1 auto; margin:0;}
 #ch_browser_query label{display:none;}
 #ch_browser_query input,#ch_browser_query textarea{
   height:2.2em;
@@ -138,11 +152,14 @@ def make_ui():
   line-height:1;
   white-space:nowrap;
 }
+
+/* Below layout: sidebar + results */
 #ch_browser_layout{
   display:flex;
   align-items:flex-start;
   gap:1rem;
   width:100%;
+  margin:0;
 }
 #ch_browser_sidebar{
   flex:0 0 250px;
@@ -153,36 +170,26 @@ def make_ui():
 }
 #ch_browser_sidebar .gradio-dropdown,
 #ch_browser_sidebar .gradio-textbox,
-#ch_browser_sidebar .gradio-checkbox{
-  margin:0;
-}
-#ch_browser_nav{
-  display:flex;
-  gap:.5rem;
-  margin-top:.4rem;
-}
-#ch_browser_results{
-  flex:1 1 auto;
-  min-width:0;
-}
-/* Grid of cards */
+#ch_browser_sidebar .gradio-checkbox{margin:0;}
+#ch_browser_nav{display:flex;gap:.5rem;margin-top:.4rem;}
+#ch_browser_results{flex:1 1 auto;min-width:0;}
+
+/* Grid */
 #ch_model_search_results .cards_container{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:.75rem;
   align-content:start;
 }
-#ch_model_search_results .model_card{
-  min-width:200px;
-}
-@media (max-width: 900px){
+#ch_model_search_results .model_card{min-width:200px;}
+
+@media (max-width:900px){
   #ch_browser_layout{flex-direction:column;}
-  #ch_browser_sidebar{flex:0 0 auto; width:100%; max-width:none; flex-wrap:wrap;}
+  #ch_browser_sidebar{flex:0 0 auto;width:100%;max-width:none;flex-wrap:wrap;}
   #ch_browser_nav{justify-content:flex-start;}
 }
-@media (prefers-reduced-motion: reduce){
-  #ch_search_bar *,
-  #ch_browser_layout *{transition:none !important;}
+@media (prefers-reduced-motion:reduce){
+  #ch_browser_root *{transition:none !important;}
 }
 </style>
 <script>
@@ -197,74 +204,58 @@ document.addEventListener('DOMContentLoaded', () => {
         """
     )
 
-    # Top full-width search bar
-    with gr.Row(elem_id="ch_search_bar"):
-        ch_query_txt = gr.Textbox(
-            label="Query",
-            value="",
-            elem_id="ch_browser_query",
-            placeholder="Enter model name or keywords",
-            elem_classes=["query_wrap"]
-        )
-        ch_search_btn = gr.Button(
-            value="Search",
-            variant="primary",
-            elem_id="ch_browser_search_btn"
-        )
+    with gr.Column(elem_id="ch_browser_root"):
+        # Top search bar (forced to top via order)
+        with gr.Row(elem_id="ch_search_bar"):
+            ch_query_txt = gr.Textbox(
+                label="Query",
+                value="",
+                elem_id="ch_browser_query",
+                placeholder="Enter model name or keywords",
+                elem_classes=["query_wrap"]
+            )
+            ch_search_btn = gr.Button(
+                value="Search",
+                variant="primary",
+                elem_id="ch_browser_search_btn"
+            )
 
-    # Below: left fixed sidebar + right results
-    with gr.Row(elem_id="ch_browser_layout"):
-        with gr.Column(elem_id="ch_browser_sidebar"):
-            ch_tag_txt = gr.Textbox(
-                label="Tag",
-                value="",
-                elem_id="ch_browser_tag"
-            )
-            ch_age_drop = gr.Dropdown(
-                label="Model Age",
-                value="AllTime",
-                choices=["AllTime","Year","Month","Week","Day"]
-            )
-            ch_sort_drop = gr.Dropdown(
-                label="Sort By",
-                value="Newest",
-                choices=["Highest Rated","Most Downloaded","Newest"]
-            )
-            ch_base_model_drop = gr.Dropdown(
-                label="Base Model",
-                value=None,
-                multiselect=True,
-                choices=SUPPORTED_MODELS
-            )
-            ch_type_drop = gr.Dropdown(
-                label="Model Type",
-                value=None,
-                multiselect=True,
-                choices=[
-                    "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
-                    "LORA","LoCon","DoRA","Controlnet","Poses","Workflows",
-                    "MotionModule","Upscaler","Wildcards","VAE"
-                ]
-            )
-            ch_nsfw_ckb = gr.Checkbox(
-                label="Allow NSFW Models",
-                value=util.get_opts("ch_nsfw_threshold") != "PG",
-            )
-            with gr.Row(elem_id="ch_browser_nav"):
-                ch_prev_btn = gr.Button(
-                    value="Previous",
-                    interactive=False
+        # Sidebar + Results
+        with gr.Row(elem_id="ch_browser_layout"):
+            with gr.Column(elem_id="ch_browser_sidebar"):
+                ch_tag_txt = gr.Textbox(label="Tag", value="", elem_id="ch_browser_tag")
+                ch_age_drop = gr.Dropdown(
+                    label="Model Age", value="AllTime",
+                    choices=["AllTime","Year","Month","Week","Day"]
                 )
-                ch_next_btn = gr.Button(
-                    value="Next",
-                    interactive=False
+                ch_sort_drop = gr.Dropdown(
+                    label="Sort By", value="Newest",
+                    choices=["Highest Rated","Most Downloaded","Newest"]
                 )
-        with gr.Column(elem_id="ch_browser_results"):
-            ch_search_results_html = gr.HTML(
-                value="",
-                label="Search Results",
-                elem_id="ch_model_search_results"
-            )
+                ch_base_model_drop = gr.Dropdown(
+                    label="Base Model", value=None, multiselect=True, choices=SUPPORTED_MODELS
+                )
+                ch_type_drop = gr.Dropdown(
+                    label="Model Type", value=None, multiselect=True,
+                    choices=[
+                        "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
+                        "LORA","LoCon","DoRA","Controlnet","Poses","Workflows",
+                        "MotionModule","Upscaler","Wildcards","VAE"
+                    ]
+                )
+                ch_nsfw_ckb = gr.Checkbox(
+                    label="Allow NSFW Models",
+                    value=util.get_opts("ch_nsfw_threshold") != "PG",
+                )
+                with gr.Row(elem_id="ch_browser_nav"):
+                    ch_prev_btn = gr.Button(value="Previous", interactive=False)
+                    ch_next_btn = gr.Button(value="Next", interactive=False)
+            with gr.Column(elem_id="ch_browser_results"):
+                ch_search_results_html = gr.HTML(
+                    value="",
+                    label="Search Results",
+                    elem_id="ch_model_search_results"
+                )
 
     # ===== Wiring (unchanged logic) =====
     inputs = [
@@ -430,6 +421,14 @@ def make_cards(models):
             "url": model["url"],
             "base_models": " / ".join(model["base_models"]),
             #"versions": model["versions"],
+            "description": model["description"],
+            "type": model["type"],
+            "model_id": model["id"],
+        })
+
+        cards.append(card)
+
+    return cards
             "description": model["description"],
             "type": model["type"],
             "model_id": model["id"],
