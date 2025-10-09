@@ -111,12 +111,26 @@ def make_ui():
         ]
 
     with gr.Row():
-        ch_query_txt = gr.Textbox(
-            label="Query",
-            value="",
-            elem_id="ch_browser_query",
-            scale=8
-        )
+        gr.HTML("""<style>
+#ch_browser_query { width:100%; }
+#ch_browser_query textarea, #ch_browser_query input {
+  height:2.1em !important;
+  min-height:2.1em !important;
+  padding-top:0.25em;
+  padding-bottom:0.25em;
+  font-size:0.95em;
+}
+</style>""")
+    with gr.Row():
+        gr.Column(scale=1)
+        with gr.Column(scale=2, min_width=520):
+            ch_query_txt = gr.Textbox(
+                label="Query",
+                value="",
+                elem_id="ch_browser_query",
+                show_label=True
+            )
+        gr.Column(scale=1)
 
     with gr.Row():
         with gr.Column(scale=1, min_width=260):
