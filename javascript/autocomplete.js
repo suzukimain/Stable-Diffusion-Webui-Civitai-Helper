@@ -168,11 +168,11 @@ async function civitaiTagFetcher(query) {
 
 // Initialize on WebUI load
 onUiLoaded(() => {
-  // Query欄: textareaまたはinput両方に対応
-  setupAutocomplete("#ch_browser_query textarea", civitaiFetcher);
-  setupAutocomplete("#ch_browser_query input", civitaiFetcher);
+  // Query
+  setupAutocomplete("#query-box textarea", civitaiFetcher);
+  setupAutocomplete("#query-box input", civitaiFetcher);
 
-  // Tag欄: textareaまたはinput両方に対応
+  // Tag (unchanged)
   setupAutocomplete("#ch_browser_tag textarea", civitaiTagFetcher);
   setupAutocomplete("#ch_browser_tag input", civitaiTagFetcher);
 });

@@ -8,29 +8,31 @@
   }
   #ch_browser_topbar > .gr-row, #ch_browser_topbar > .gradio-row{
     display:flex;
-    gap:8px;
-    width:700px; /* 500 + 200 */
+    gap:12px;
     justify-content:center;
     align-items:center;
     flex-wrap:nowrap;
   }
-  #ch_browser_topbar .ch-query-wrapper{width:500px; height:40px; display:flex;}
-  #ch_browser_topbar .ch-search-btn{width:200px; height:40px; display:flex;}
-  #ch_browser_topbar #ch_browser_query input,
-  #ch_browser_topbar #ch_browser_query textarea{
-    width:100% !important;
+
+  /* Query box styling per spec */
+  #query-box textarea{
+    box-shadow:none !important;
+    outline:none !important;
+    border:1px solid #ccc !important;
+    padding:6px 10px;
     height:40px !important;
     min-height:40px !important;
-    line-height:40px;
+    line-height:26px;
     resize:none;
   }
+
+  /* Ensure search button matches height (auto width) */
   #ch_browser_search_button button{
-    width:100%;
     height:40px;
     min-height:40px;
   }
 
-  /* Main body: sidebar + results */
+  /* Main body: sidebar + results (no fixed pixel widths except cards/thumbs) */
   #ch_browser_body{
     display:flex;
     align-items:flex-start;
@@ -40,34 +42,8 @@
     display:flex;
     flex-direction:column;
     gap:8px;
-    width:300px;
-    flex:0 0 300px;
+    /* no fixed width */
   }
-  /* Sidebar fields uniform sizing */
-  #ch_browser_sidebar .ch-sidebar-field{
-    width:300px !important;
-    min-width:300px;
-  }
-  #ch_browser_sidebar .ch-sidebar-field input,
-  #ch_browser_sidebar .ch-sidebar-field textarea,
-  #ch_browser_sidebar .ch-sidebar-field select{
-    height:40px !important;
-    min-height:40px !important;
-    line-height:40px;
-    resize:none;
-  }
-  #ch_browser_sidebar .ch-sidebar-field.ch-sidebar-nav{
-    display:flex;
-    flex-direction:row;
-    gap:8px;
-  }
-  #ch_browser_sidebar .ch-sidebar-nav button{
-    flex:1 1 0;
-    height:40px;
-    min-height:40px;
-  }
-
-  /* Results area */
   #ch_browser_results{
     flex:1 1 auto;
     min-width:0;
@@ -112,15 +88,39 @@
   }
   .model_card a:focus{outline:2px solid #10b981; outline-offset:2px;}
 
-  /* Responsive fallback: keep horizontal until very narrow, then stack */
   @media (max-width: 900px){
     #ch_browser_body{flex-direction:column;}
-    #ch_browser_sidebar{flex-direction:row; flex-wrap:wrap; width:100%;}
-    #ch_browser_sidebar .ch-sidebar-field{flex:1 1 300px;}
+    #ch_browser_sidebar{flex-direction:row; flex-wrap:wrap;}
   }
 </style>
 <script>
-// Accessibility: bind Enter/Esc for search query (once)
+// Accessibility: bind Enter/Esc for search query (once) - updated id
+(function(){
+  if(window.__ch_query_bind) return;
+  window.__ch_query_bind = true;
+  function bindQueryKeys(){
+    const queryEl = document.querySelector('#query-box textarea, #query-box input');
+    const btn = document.querySelector('#ch_browser_search_button button, #ch_browser_search_button');
+    if(!queryEl || !btn) return;
+    queryEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        btn.click();
+      }else if(e.key === 'Escape'){
+        queryEl.value='';
+        queryEl.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+    });
+  }
+  bindQueryKeys();
+  setTimeout(bindQueryKeys, 800);
+})();
+</script>
+<div class="search_container" id="ch_search">
+  <div class="cards_container" role="list">
+      ${cards}
+  </div>
+</div>
 (function(){
   if(window.__ch_query_bind) return;
   window.__ch_query_bind = true;

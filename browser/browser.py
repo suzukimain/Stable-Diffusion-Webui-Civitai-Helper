@@ -116,9 +116,10 @@ def make_ui():
                 ch_query_txt = gr.Textbox(
                     label="Query",
                     value="",
-                    elem_id="ch_browser_query",
+                    elem_id="query-box",  # changed from ch_browser_query
                     show_label=False,
                     lines=1,
+                    min_width=500,  # pixel width requirement via min_width
                     placeholder="Search models..."
                 )
             with gr.Column(elem_classes="ch-search-btn"):
