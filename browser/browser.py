@@ -407,7 +407,6 @@ def quick_template_from_file(filename):
 def make_cards(models):
     card_template = quick_template_from_file("model_card.html")
     preview_template = quick_template_from_file("image_preview.html")
-    # video_preview_template = quick_template_from_file("video_preview.html")
 
     cards = []
     for model in models:
@@ -420,15 +419,6 @@ def make_cards(models):
             "preview": preview,
             "url": model["url"],
             "base_models": " / ".join(model["base_models"]),
-            #"versions": model["versions"],
-            "description": model["description"],
-            "type": model["type"],
-            "model_id": model["id"],
-        })
-
-        cards.append(card)
-
-    return cards
             "description": model["description"],
             "type": model["type"],
             "model_id": model["id"],
