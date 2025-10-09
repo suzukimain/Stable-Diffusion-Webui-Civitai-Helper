@@ -172,6 +172,7 @@ def make_ui():
             ch_search_btn = gr.Button(
                 variant="primary",
                 value="Search",
+                elem_id="ch_browser_search_btn" 
             )
             ch_prev_btn = gr.Button(
                 value="Previous Page",
@@ -206,9 +207,35 @@ def make_ui():
         ch_prev_btn,
         ch_next_btn
     ]
+
     ch_search_btn.click(perform_search, inputs=inputs, outputs=outputs)
     ch_prev_btn.click(perform_search, inputs=inputs, outputs=outputs)
     ch_next_btn.click(perform_search, inputs=inputs, outputs=outputs)
+
+    gr.HTML("""
+<script>
+(function autoSearchInit(){
+  function init() {
+    const root = document.getElementById('ch_browser_query');
+    const btn = document.getElementById('ch_browser_search_btn');
+    if(!root || !btn) { setTimeout(init, 300); return; }
+    const q = root.querySelector('textarea, input');
+    if(!q) { setTimeout(init, 300); return; }
+    let timer = null, last = q.value;
+    q.addEventListener('input', () => {
+      const val = q.value;
+      if (val === last) return;
+      last = val;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        btn.click();
+      }, 700);
+    });
+  }
+  init();
+})();
+</script>
+""")
 
 def array_frags(name, vals, frags):
     if len(vals) == 0:
@@ -338,7 +365,6 @@ def quick_template_from_file(filename):
 def make_cards(models):
     card_template = quick_template_from_file("model_card.html")
     preview_template = quick_template_from_file("image_preview.html")
-    # video_preview_template = quick_template_from_file("video_preview.html")
 
     cards = []
     for model in models:
