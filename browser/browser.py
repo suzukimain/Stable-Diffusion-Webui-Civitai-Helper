@@ -110,101 +110,163 @@ def make_ui():
             gr.Button(interactive=next_page is not None)
         ]
 
-    with gr.Row():
-        gr.Markdown("# Browse and Search Models")
+    # ===== New responsive layout (top search bar + sidebar + results) =====
+    gr.HTML(
+        """
+<style>
+#ch_search_bar{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  width:100%;
+  margin:0 0 .65rem 0;
+}
+#ch_search_bar .query_wrap{flex:1 1 auto; margin:0;}
+#ch_browser_query label{display:none;}
+#ch_browser_query input,#ch_browser_query textarea{
+  height:2.2em;
+  padding:.3em .8em;
+  font-size:1rem;
+  line-height:1.1;
+}
+#ch_browser_search_btn button{
+  height:2.2em;
+  padding:0 1.15em;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  white-space:nowrap;
+}
+#ch_browser_layout{
+  display:flex;
+  align-items:flex-start;
+  gap:1rem;
+  width:100%;
+}
+#ch_browser_sidebar{
+  flex:0 0 250px;
+  max-width:250px;
+  display:flex;
+  flex-direction:column;
+  gap:.55rem;
+}
+#ch_browser_sidebar .gradio-dropdown,
+#ch_browser_sidebar .gradio-textbox,
+#ch_browser_sidebar .gradio-checkbox{
+  margin:0;
+}
+#ch_browser_nav{
+  display:flex;
+  gap:.5rem;
+  margin-top:.4rem;
+}
+#ch_browser_results{
+  flex:1 1 auto;
+  min-width:0;
+}
+/* Grid of cards */
+#ch_model_search_results .cards_container{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:.75rem;
+  align-content:start;
+}
+#ch_model_search_results .model_card{
+  min-width:200px;
+}
+@media (max-width: 900px){
+  #ch_browser_layout{flex-direction:column;}
+  #ch_browser_sidebar{flex:0 0 auto; width:100%; max-width:none; flex-wrap:wrap;}
+  #ch_browser_nav{justify-content:flex-start;}
+}
+@media (prefers-reduced-motion: reduce){
+  #ch_search_bar *,
+  #ch_browser_layout *{transition:none !important;}
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('#ch_browser_search_btn button');
+  if(btn){
+    btn.setAttribute('aria-label','Execute model search');
+    btn.setAttribute('aria-controls','ch_model_search_results');
+  }
+});
+</script>
+        """
+    )
 
-    with gr.Row():
-        gr.Markdown("Tip: You can save your choices as defaults by selecting the options you'd like and then going to `Settings -> Other -> Defaults` and hitting `Apply`!")
-
-    with gr.Row(equal_height=True):
+    # Top full-width search bar
+    with gr.Row(elem_id="ch_search_bar"):
         ch_query_txt = gr.Textbox(
             label="Query",
             value="",
-            elem_id="ch_browser_query"
+            elem_id="ch_browser_query",
+            placeholder="Enter model name or keywords",
+            elem_classes=["query_wrap"]
         )
-        ch_tag_txt = gr.Textbox(
-            label="Tag",
-            value="",
-            elem_id="ch_browser_tag"
-        )
-        ch_age_drop = gr.Dropdown(
-            label="Model Age",
-            value="AllTime",
-            choices=[
-                "AllTime",
-                "Year",
-                "Month",
-                "Week",
-                "Day"
-            ]
-        )
-        ch_sort_drop = gr.Dropdown(
-            label="Sort By",
-            value="Newest",
-            choices=[
-                "Highest Rated",
-                "Most Downloaded",
-                "Newest"
-            ]
-        )
-
-    with gr.Row(equal_height=True):
-        ch_base_model_drop = gr.Dropdown(
-            label="Base Model",
-            value=None,
-            multiselect=True,
-            choices=SUPPORTED_MODELS
-        )
-        ch_type_drop = gr.Dropdown(
-            label="Model Type",
-            value=None,
-            multiselect=True,
-            choices=[
-                # TODO: Perhaps make this list external so it can be updated independent of CH version.
-                "Checkpoint",
-                "TextualInversion",
-                "Hypernetwork",
-                "AestheticGradient",
-                "LORA",
-                "LoCon",
-                "DoRA",
-                "Controlnet",
-                "Poses",
-                "Workflows",
-                "MotionModule",
-                "Upscaler",
-                "Wildcards",
-                "VAE"
-            ]
-        )
-
-        ch_nsfw_ckb = gr.Checkbox(
-            label="Allow NSFW Models",
-            value=util.get_opts("ch_nsfw_threshold") != "PG",
-        )
-
         ch_search_btn = gr.Button(
-            variant="primary",
             value="Search",
+            variant="primary",
+            elem_id="ch_browser_search_btn"
         )
 
-    with gr.Row(equal_height=True):
-        ch_prev_btn = gr.Button(
-            value="Previous Page",
-            interactive=False
-        )
-        ch_next_btn = gr.Button(
-            value="Next Page",
-            interactive=False
-        )
+    # Below: left fixed sidebar + right results
+    with gr.Row(elem_id="ch_browser_layout"):
+        with gr.Column(elem_id="ch_browser_sidebar"):
+            ch_tag_txt = gr.Textbox(
+                label="Tag",
+                value="",
+                elem_id="ch_browser_tag"
+            )
+            ch_age_drop = gr.Dropdown(
+                label="Model Age",
+                value="AllTime",
+                choices=["AllTime","Year","Month","Week","Day"]
+            )
+            ch_sort_drop = gr.Dropdown(
+                label="Sort By",
+                value="Newest",
+                choices=["Highest Rated","Most Downloaded","Newest"]
+            )
+            ch_base_model_drop = gr.Dropdown(
+                label="Base Model",
+                value=None,
+                multiselect=True,
+                choices=SUPPORTED_MODELS
+            )
+            ch_type_drop = gr.Dropdown(
+                label="Model Type",
+                value=None,
+                multiselect=True,
+                choices=[
+                    "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
+                    "LORA","LoCon","DoRA","Controlnet","Poses","Workflows",
+                    "MotionModule","Upscaler","Wildcards","VAE"
+                ]
+            )
+            ch_nsfw_ckb = gr.Checkbox(
+                label="Allow NSFW Models",
+                value=util.get_opts("ch_nsfw_threshold") != "PG",
+            )
+            with gr.Row(elem_id="ch_browser_nav"):
+                ch_prev_btn = gr.Button(
+                    value="Previous",
+                    interactive=False
+                )
+                ch_next_btn = gr.Button(
+                    value="Next",
+                    interactive=False
+                )
+        with gr.Column(elem_id="ch_browser_results"):
+            ch_search_results_html = gr.HTML(
+                value="",
+                label="Search Results",
+                elem_id="ch_model_search_results"
+            )
 
-    with gr.Box():
-        ch_search_results_html = gr.HTML(
-            value="",
-            label="Search Results",
-            elem_id="ch_model_search_results"
-        )
-
+    # ===== Wiring (unchanged logic) =====
     inputs = [
         ch_search_state,
         ch_query_txt,
@@ -215,7 +277,6 @@ def make_ui():
         ch_type_drop,
         ch_nsfw_ckb
     ]
-
     outputs = [
         ch_search_state,
         ch_search_results_html,
@@ -223,22 +284,9 @@ def make_ui():
         ch_next_btn
     ]
 
-    ch_search_btn.click(
-        perform_search,
-        inputs=inputs,
-        outputs=outputs
-    )
-
-    ch_prev_btn.click(
-        perform_search,
-        inputs=inputs,
-        outputs=outputs
-    )
-    ch_next_btn.click(
-        perform_search,
-        inputs=inputs,
-        outputs=outputs
-    )
+    ch_search_btn.click(perform_search, inputs=inputs, outputs=outputs)
+    ch_prev_btn.click(perform_search, inputs=inputs, outputs=outputs)
+    ch_next_btn.click(perform_search, inputs=inputs, outputs=outputs)
 
 def array_frags(name, vals, frags):
     if len(vals) == 0:
