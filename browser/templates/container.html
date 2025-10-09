@@ -1,34 +1,72 @@
 <style>
-  /* Layout */
+  /* Top bar layout (center) */
   #ch_browser_topbar{
     display:flex;
     justify-content:center;
     align-items:center;
-    gap:1rem;
-    flex-wrap:wrap;
-    margin-bottom:0.75rem;
+    padding:4px 0;
   }
-  /* Query wrapper sizing */
-  #ch_browser_topbar .ch-query-wrapper{flex:2 1 480px; min-width:320px;}
-  /* Search button sizing */
-  #ch_browser_topbar .ch-search-btn{flex:1 1 160px; min-width:140px; display:flex; align-items:stretch;}
-  #ch_browser_topbar .ch-search-btn button{width:100%;}
+  #ch_browser_topbar > .gr-row, #ch_browser_topbar > .gradio-row{
+    display:flex;
+    gap:8px;
+    width:700px; /* 500 + 200 */
+    justify-content:center;
+    align-items:center;
+    flex-wrap:nowrap;
+  }
+  #ch_browser_topbar .ch-query-wrapper{width:500px; height:40px; display:flex;}
+  #ch_browser_topbar .ch-search-btn{width:200px; height:40px; display:flex;}
+  #ch_browser_topbar #ch_browser_query input,
+  #ch_browser_topbar #ch_browser_query textarea{
+    width:100% !important;
+    height:40px !important;
+    min-height:40px !important;
+    line-height:40px;
+    resize:none;
+  }
+  #ch_browser_search_button button{
+    width:100%;
+    height:40px;
+    min-height:40px;
+  }
 
-  /* Body layout: sidebar + results */
+  /* Main body: sidebar + results */
   #ch_browser_body{
     display:flex;
     align-items:flex-start;
-    gap:1rem;
+    gap:16px;
   }
-  /* Sidebar (fixed width, sticky) */
   #ch_browser_sidebar{
-    flex:0 0 300px;
-    max-width:300px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
     width:300px;
-    position:sticky;
-    top:0;
-    align-self:flex-start;
+    flex:0 0 300px;
   }
+  /* Sidebar fields uniform sizing */
+  #ch_browser_sidebar .ch-sidebar-field{
+    width:300px !important;
+    min-width:300px;
+  }
+  #ch_browser_sidebar .ch-sidebar-field input,
+  #ch_browser_sidebar .ch-sidebar-field textarea,
+  #ch_browser_sidebar .ch-sidebar-field select{
+    height:40px !important;
+    min-height:40px !important;
+    line-height:40px;
+    resize:none;
+  }
+  #ch_browser_sidebar .ch-sidebar-field.ch-sidebar-nav{
+    display:flex;
+    flex-direction:row;
+    gap:8px;
+  }
+  #ch_browser_sidebar .ch-sidebar-nav button{
+    flex:1 1 0;
+    height:40px;
+    min-height:40px;
+  }
+
   /* Results area */
   #ch_browser_results{
     flex:1 1 auto;
@@ -52,57 +90,59 @@
     gap:4px;
     outline:none;
   }
-  .model_card:focus{
-    outline:2px solid #3b82f6;
-    outline-offset:2px;
-  }
+  .model_card:focus{outline:2px solid #3b82f6; outline-offset:2px;}
   .model_card .preview_container{
-    width:200px;
-    height:200px;
+    width:200px; height:200px;
     margin:0 auto 4px;
     overflow:hidden;
     border-radius:4px;
     background:#111;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display:flex; align-items:center; justify-content:center;
   }
   .model_card .model_preview{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
+    width:100%; height:100%; object-fit:cover; display:block;
   }
   .model_card .title{
-    font-weight:600;
-    font-size:.9rem;
-    line-height:1.2;
-    max-height:2.4em;
-    overflow:hidden;
+    font-weight:600; font-size:.9rem; line-height:1.2;
+    max-height:2.4em; overflow:hidden;
   }
   .model_card .description{
-    font-size:.75rem;
-    line-height:1.25;
-    max-height:6.5em;
-    overflow:auto;
+    font-size:.75rem; line-height:1.25;
+    max-height:6.5em; overflow:auto;
   }
-  .model_card .ux a{
-    text-decoration:none;
-  }
+  .model_card a:focus{outline:2px solid #10b981; outline-offset:2px;}
 
-  /* Focus style for links inside card */
-  .model_card a:focus{
-    outline:2px solid #10b981;
-    outline-offset:2px;
-  }
-
-  /* Responsive: stack sidebar below on narrow screens */
-  @media (max-width: 880px){
+  /* Responsive fallback: keep horizontal until very narrow, then stack */
+  @media (max-width: 900px){
     #ch_browser_body{flex-direction:column;}
-    #ch_browser_sidebar{position:static; width:100%; max-width:100%; display:flex; flex-wrap:wrap; gap:.75rem;}
-    #ch_browser_sidebar > *{flex:1 1 220px;}
+    #ch_browser_sidebar{flex-direction:row; flex-wrap:wrap; width:100%;}
+    #ch_browser_sidebar .ch-sidebar-field{flex:1 1 300px;}
   }
 </style>
+<script>
+// Accessibility: bind Enter/Esc for search query (once)
+(function(){
+  if(window.__ch_query_bind) return;
+  window.__ch_query_bind = true;
+  function bindQueryKeys(){
+    const queryEl = document.querySelector('#ch_browser_query textarea, #ch_browser_query input');
+    const btn = document.querySelector('#ch_browser_search_button button, #ch_browser_search_button');
+    if(!queryEl || !btn) return;
+    queryEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        btn.click();
+      }else if(e.key === 'Escape'){
+        queryEl.value='';
+        queryEl.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+    });
+  }
+  // Try now and after slight delay (Gradio render timing)
+  bindQueryKeys();
+  setTimeout(bindQueryKeys, 800);
+})();
+</script>
 <div class="search_container" id="ch_search">
   <div class="cards_container" role="list">
       ${cards}
