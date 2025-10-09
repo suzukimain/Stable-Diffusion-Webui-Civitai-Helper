@@ -14,25 +14,30 @@
     flex-wrap:nowrap;
   }
 
-  /* Query box styling per spec */
+  /* Query box styling (only element with pixel width) */
+  #query-box{
+    max-width:500px;
+    width:100%;
+  }
   #query-box textarea{
     box-shadow:none !important;
     outline:none !important;
     border:1px solid #ccc !important;
     padding:6px 10px;
+    max-width:500px;
     height:40px !important;
     min-height:40px !important;
     line-height:26px;
     resize:none;
   }
 
-  /* Ensure search button matches height (auto width) */
+  /* Search button height align (no fixed width) */
   #ch_browser_search_button button{
     height:40px;
     min-height:40px;
   }
 
-  /* Main body: sidebar + results (no fixed pixel widths except cards/thumbs) */
+  /* Main body: sidebar (20%) + results */
   #ch_browser_body{
     display:flex;
     align-items:flex-start;
@@ -42,7 +47,8 @@
     display:flex;
     flex-direction:column;
     gap:8px;
-    /* no fixed width */
+    width:20%;
+    flex:0 0 20%;
   }
   #ch_browser_results{
     flex:1 1 auto;
@@ -90,11 +96,11 @@
 
   @media (max-width: 900px){
     #ch_browser_body{flex-direction:column;}
-    #ch_browser_sidebar{flex-direction:row; flex-wrap:wrap;}
+    #ch_browser_sidebar{flex-direction:row; flex-wrap:wrap; width:100%; flex:0 0 auto;}
   }
 </style>
 <script>
-// Accessibility: bind Enter/Esc for search query (once) - updated id
+/* Accessibility: Enter triggers search, Esc clears */
 (function(){
   if(window.__ch_query_bind) return;
   window.__ch_query_bind = true;
@@ -113,7 +119,7 @@
     });
   }
   bindQueryKeys();
-  setTimeout(bindQueryKeys, 800);
+  setTimeout(bindQueryKeys, 600);
 })();
 </script>
 <div class="search_container" id="ch_search">
@@ -121,12 +127,6 @@
       ${cards}
   </div>
 </div>
-(function(){
-  if(window.__ch_query_bind) return;
-  window.__ch_query_bind = true;
-  function bindQueryKeys(){
-    const queryEl = document.querySelector('#ch_browser_query textarea, #ch_browser_query input');
-    const btn = document.querySelector('#ch_browser_search_button button, #ch_browser_search_button');
     if(!queryEl || !btn) return;
     queryEl.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter'){
