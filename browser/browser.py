@@ -113,31 +113,23 @@ def make_ui():
     gr.HTML(
         """
 <style>
-:root {
-  --ch-sidebar-width: 250px;
-  --ch-card-min: 200px; /* min thumbnail/card width */
-}
-/* ---- Top bar ---- */
-#ch_filter_wrapper {width:100%;}
+/* --- Top Bar Layout Adjustments --- */
 #ch_filter_bar {
   display:flex;
   align-items:center;
   gap:.6rem;
+  width:100%;
   margin-bottom:.4rem;
 }
-/* Reordered: button first, then query */
 #ch_filter_bar #ch_filter_toggle_btn {flex:0 0 auto;}
-#ch_filter_bar #ch_browser_query {flex:1 1 auto;}
-#ch_browser_query {margin:0;}
-#ch_browser_query label {display:none;} /* hide label to save horizontal space */
-#ch_browser_query input,
-#ch_browser_query textarea {
+#ch_filter_bar #ch_browser_query {flex:1 1 auto; margin:0;}
+#ch_browser_query label {display:none;}
+#ch_browser_query input, #ch_browser_query textarea {
   height:2.1em;
   padding:.25em .75em;
   font-size:1.02rem;
   line-height:1.1;
 }
-/* Funnel toggle button stylings */
 #ch_filter_toggle_btn button {
   --btn-size:2.1em;
   width:var(--btn-size);
@@ -149,8 +141,8 @@ def make_ui():
   background:#333;
   color:#fff;
   border-radius:8px;
+  font-size:0;
   position:relative;
-  font-size:0; /* hide any text */
 }
 #ch_filter_toggle_btn button::before {
   content:"";
@@ -158,17 +150,31 @@ def make_ui():
   height:55%;
   background:#fff;
   display:block;
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='%23ffffff'><path d='M3 4h18c.55 0 1 .45 1 1 0 .21-.07.41-.2.58L15 14.01V20c0 .55-.45 1-1 1-.21 0-.41-.07-.58-.2l-4-3.2A1 1 0 0 1 9 16v-1.99L2.2 5.58A1 1 0 0 1 2 5c0-.55.45-1 1-1z'/></svg>") center / contain no-repeat;
-  mask: url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M3 4h18c.55 0 1 .45 1 1 0 .21-.07.41-.2.58L15 14.01V20c0 .55-.45 1-1 1-.21 0-.41-.07-.58-.2l-4-3.2A1 1 0 0 1 9 16v-1.99L2.2 5.58A1 1 0 0 1 2 5c0-.55.45-1 1-1z'/></svg>") center / contain no-repeat;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='%23ffffff'><path d='M3 4h18c.55 0 1 .45 1 1 0 .21-.07.41-.2.58L15 14.01V20c0 .55-.45 1-1 1-.21 0-.41-.07-.58-.2l-4-3.2A1 1 0 0 1 9 16v-1.99L2.2 5.58A1 1 0 0 1 2 5c0-.55.45-1 1-1z'/></svg>") center / contain no-repeat;
+  mask:url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M3 4h18c.55 0 1 .45 1 1 0 .21-.07.41-.2.58L15 14.01V20c0 .55-.45 1-1 1-.21 0-.41-.07-.58-.2l-4-3.2A1 1 0 0 1 9 16v-1.99L2.2 5.58A1 1 0 0 1 2 5c0-.55.45-1 1-1z'/></svg>") center / contain no-repeat;
 }
 #ch_filter_toggle_btn button[aria-expanded="true"] {background:#555;}
 #ch_filter_toggle_btn button:focus-visible {outline:2px solid #888; outline-offset:2px;}
-/* ---- Layout ---- */
+/* Search button next to query */
+#ch_browser_search_btn button {
+  height:2.1em;
+  padding:0 1.0em;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:.9rem;
+  line-height:1;
+  white-space:nowrap;
+}
+
+/* Main area alignment (sidebar + results) */
 #ch_main_area {
   display:flex;
-  align-items:flex-start;
+  align-items:flex-start; /* top aligned */
   gap:0;
 }
+
+/* Sidebar unchanged logic (collapsible) */
 #ch_filter_sidebar {
   flex:0 0 var(--ch-sidebar-width);
   width:var(--ch-sidebar-width);
@@ -184,75 +190,30 @@ def make_ui():
   opacity:0;
   overflow:hidden;
 }
+
+/* Results container flex growth */
 #ch_results_container {
   flex:1 1 auto;
   min-width:0;
   width:100%;
   transition: width .25s ease;
 }
-/* ---- Cards Grid ---- */
+
+/* Grid (constant card min width, columns count adjusts with available width) */
 #ch_model_search_results .cards_container {
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(var(--ch-card-min), 1fr));
+  grid-template-columns:repeat(auto-fill, minmax(var(--ch-card-min, 200px), 1fr));
   gap:.75rem;
   align-content:start;
 }
-#ch_model_search_results .model_card {
-  min-width:var(--ch-card-min);
-  background:var(--block-background-fill, #1e1e1e);
-  border:1px solid var(--block-border-color, #444);
-  border-radius:6px;
-  padding:.4rem .45rem .55rem;
-  box-sizing:border-box;
-  display:flex;
-  flex-direction:column;
-  gap:.4rem;
-}
-#ch_model_search_results .model_card .preview_container {
-  width:100%;
-  aspect-ratio:1/1;
-  overflow:hidden;
-  border-radius:4px;
-  background:#222;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#ch_model_search_results .model_card .preview_container img,
-#ch_model_search_results .model_card .preview_container video {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-#ch_model_search_results .model_card .title {
-  font-size:.85rem;
-  font-weight:600;
-  line-height:1.1;
-  max-height:2.2em;
-  overflow:hidden;
-}
-#ch_model_search_results .model_card .model_meta {
-  display:flex;
-  justify-content:space-between;
-  font-size:.65rem;
-  opacity:.75;
-  gap:.5rem;
-}
-#ch_model_search_results .model_card .description {
-  font-size:.62rem;
-  line-height:1.1;
-  max-height:5.5em;
-  overflow:hidden;
-  opacity:.8;
-}
-/* Mobile overlay for sidebar */
+
+/* Mobile overlay keeps same toggle behavior */
 @media (max-width: 900px){
   #ch_filter_sidebar {
     position:fixed;
     top:0;left:0;bottom:0;
     z-index:1001;
-    width:var(--ch-sidebar-width);
+    width:var(--ch-sidebar-width,250px);
     max-width:80vw;
     overflow-y:auto;
     background:var(--body-background-fill);
@@ -264,7 +225,7 @@ def make_ui():
   }
   #ch_filter_sidebar.closed {
     transform:translateX(-120%);
-    width:var(--ch-sidebar-width);
+    width:var(--ch-sidebar-width,250px);
     opacity:0;
   }
   #ch_filter_backdrop {
@@ -282,20 +243,24 @@ def make_ui():
     pointer-events:auto;
   }
 }
+
 @media (prefers-reduced-motion: reduce){
   #ch_filter_sidebar,
   #ch_results_container,
-  #ch_filter_backdrop {
+  #ch_filter_backdrop,
+  #ch_filter_bar,
+  #ch_browser_search_btn button {
     transition:none !important;
   }
 }
 </style>
         """
     )
+
     with gr.Column(elem_id="ch_filter_wrapper"):
         with gr.Row(elem_id="ch_filter_bar"):
-            ch_filter_toggle_btn = gr.Button(  # moved before query
-                value=" ",  # icon handled via CSS ::before
+            ch_filter_toggle_btn = gr.Button(
+                value=" ",
                 elem_id="ch_filter_toggle_btn"
             )
             ch_query_txt = gr.Textbox(
@@ -304,48 +269,27 @@ def make_ui():
                 elem_id="ch_browser_query",
                 placeholder="Enter model name or keywords",
             )
-    with gr.Row(elem_id="ch_main_area", equal_height=False):
-        with gr.Column(scale=0, min_width=0, elem_id="ch_filter_sidebar"):
-            ch_tag_txt = gr.Textbox(
-                label="Tag",
-                value="",
-                elem_id="ch_browser_tag"
-            )
-            ch_age_drop = gr.Dropdown(
-                label="Model Age",
-                value="AllTime",
-                choices=["AllTime","Year","Month","Week","Day"]
-            )
-            ch_sort_drop = gr.Dropdown(
-                label="Sort By",
-                value="Newest",
-                choices=["Highest Rated","Most Downloaded","Newest"]
-            )
-            ch_base_model_drop = gr.Dropdown(
-                label="Base Model",
-                value=None,
-                multiselect=True,
-                choices=SUPPORTED_MODELS
-            )
-            ch_type_drop = gr.Dropdown(
-                label="Model Type",
-                value=None,
-                multiselect=True,
-                choices=[
-                    "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
-                    "LORA","LoCon","DoRA","Controlnet","Poses","Workflows",
-                    "MotionModule","Upscaler","Wildcards","VAE"
-                ]
-            )
-            ch_nsfw_ckb = gr.Checkbox(
-                label="Allow NSFW Models",
-                value=util.get_opts("ch_nsfw_threshold") != "PG",
-            )
-            ch_search_btn = gr.Button(
-                variant="primary",
+            ch_search_btn = gr.Button(      # moved from sidebar to top bar
                 value="Search",
+                variant="primary",
                 elem_id="ch_browser_search_btn"
             )
+
+    with gr.Row(elem_id="ch_main_area", equal_height=False):
+        with gr.Column(scale=0, min_width=0, elem_id="ch_filter_sidebar"):
+            ch_tag_txt = gr.Textbox(label="Tag", value="", elem_id="ch_browser_tag")
+            ch_age_drop = gr.Dropdown(label="Model Age", value="AllTime",
+                                      choices=["AllTime","Year","Month","Week","Day"])
+            ch_sort_drop = gr.Dropdown(label="Sort By", value="Newest",
+                                       choices=["Highest Rated","Most Downloaded","Newest"])
+            ch_base_model_drop = gr.Dropdown(label="Base Model", value=None,
+                                             multiselect=True, choices=SUPPORTED_MODELS)
+            ch_type_drop = gr.Dropdown(label="Model Type", value=None, multiselect=True,
+                                       choices=["Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
+                                                "LORA","LoCon","DoRA","Controlnet","Poses","Workflows",
+                                                "MotionModule","Upscaler","Wildcards","VAE"])
+            ch_nsfw_ckb = gr.Checkbox(label="Allow NSFW Models",
+                                      value=util.get_opts("ch_nsfw_threshold") != "PG")
             with gr.Row():
                 ch_prev_btn = gr.Button(value="Prev", interactive=False)
                 ch_next_btn = gr.Button(value="Next", interactive=False)
@@ -357,8 +301,8 @@ def make_ui():
                     label="Search Results",
                     elem_id="ch_model_search_results"
                 )
-    # ===== 新レイアウト終了 =====
 
+    # Update inputs list (removed search button from sidebar, logic unchanged)
     inputs = [
         ch_search_state,
         ch_query_txt,
