@@ -118,6 +118,7 @@ def make_ui():
                     value="",
                     elem_id="ch_browser_query",
                     show_label=False,
+                    lines=1,
                     placeholder="Search models..."
                 )
             with gr.Column(elem_classes="ch-search-btn"):
@@ -132,23 +133,34 @@ def make_ui():
             ch_tag_txt = gr.Textbox(
                 label="Tag",
                 value="",
-                elem_id="ch_browser_tag"
+                elem_id="ch_browser_tag",
+                show_label=False,
+                lines=1,
+                placeholder="Tag",
+                elem_classes="ch-sidebar-field"
             )
             ch_age_drop = gr.Dropdown(
                 label="Model Age",
                 value="AllTime",
-                choices=["AllTime","Year","Month","Week","Day"]
+                choices=["AllTime","Year","Month","Week","Day"],
+                show_label=False,
+                elem_classes="ch-sidebar-field"
             )
             ch_sort_drop = gr.Dropdown(
                 label="Sort By",
                 value="Newest",
-                choices=["Highest Rated","Most Downloaded","Newest"]
+                choices=["Highest Rated","Most Downloaded","Newest"],
+                show_label=False,
+                elem_classes="ch-sidebar-field"
             )
             ch_base_model_drop = gr.Dropdown(
                 label="Base Model",
                 value=None,
                 multiselect=True,
-                choices=SUPPORTED_MODELS
+                choices=SUPPORTED_MODELS,
+                show_label=False,
+                elem_classes="ch-sidebar-field",
+                placeholder="Base Model"
             )
             ch_type_drop = gr.Dropdown(
                 label="Model Type",
@@ -158,19 +170,24 @@ def make_ui():
                     "Checkpoint","TextualInversion","Hypernetwork","AestheticGradient",
                     "LORA","LoCon","DoRA","Controlnet","Poses","Workflows","MotionModule",
                     "Upscaler","Wildcards","VAE"
-                ]
+                ],
+                show_label=False,
+                elem_classes="ch-sidebar-field",
+                placeholder="Model Type"
             )
             ch_nsfw_ckb = gr.Checkbox(
                 label="Allow NSFW Models",
                 value=util.get_opts("ch_nsfw_threshold") != "PG",
+                show_label=False,
+                elem_classes="ch-sidebar-field"
             )
-            with gr.Row():
+            with gr.Row(elem_classes="ch-sidebar-nav ch-sidebar-field"):
                 ch_prev_btn = gr.Button(
-                    value="Previous Page",
+                    value="Prev",
                     interactive=False
                 )
                 ch_next_btn = gr.Button(
-                    value="Next Page",
+                    value="Next",
                     interactive=False
                 )
         with gr.Column(elem_id="ch_browser_results"):
