@@ -113,11 +113,14 @@ def make_ui():
     gr.HTML(
         """
 <style>
+:root {
+  --ch-sidebar-width: 250px; /* Base width for desktop sidebar */
+}
 #ch_filter_wrapper {width:100%;}
 #ch_browser_query {margin-bottom:.35rem;}
 #ch_browser_query input,
 #ch_browser_query textarea {
-  /* Height already ~0.7 of default inputs (target requirement) */
+  /* Query input height approx 0.7 of default inputs */
   height:2.1em;
   padding:.25em .7em;
   font-size:1.02rem;
@@ -129,40 +132,64 @@ def make_ui():
   gap:.5rem;
   margin-bottom:.25rem;
 }
-/* Make query box take double horizontal space vs a normal 1 unit element */
-#ch_filter_bar #ch_browser_query {flex:2 1 0;} /* width x2 */
-#ch_filter_bar #ch_filter_toggle_btn {flex:0 0 auto;} /* keep toggle button compact */
-/* Optional: prevent query label from shrinking too much */
+#ch_filter_bar #ch_browser_query {flex:2 1 0;}
+#ch_filter_bar #ch_filter_toggle_btn {flex:0 0 auto;}
 #ch_filter_bar #ch_browser_query label {white-space:nowrap;}
-#ch_filter_toggle_btn button {
-  min-width:90px;
+#ch_filter_toggle_btn button {min-width:90px;}
+
+#ch_main_area {
+  /* Ensure predictable flex layout (sidebar + results) */
+  display:flex;
+  align-items:flex-start;
 }
+
 #ch_filter_sidebar {
-  transition:transform .25s ease, opacity .25s ease;
-  will-change: transform;
+  /* Desktop (>=901px): persistent column whose width animates */
+  flex:0 0 var(--ch-sidebar-width);
+  width:var(--ch-sidebar-width);
+  max-width:var(--ch-sidebar-width);
+  transition: width .25s ease, padding .25s ease, opacity .18s ease;
+  padding:0 .5rem .75rem .25rem;
+  box-sizing:border-box;
 }
 #ch_filter_sidebar.closed {
-  transform:translateX(-110%);
+  /* Collapse without overlay on desktop */
+  width:0;
+  flex-basis:0;
+  padding:0;
   opacity:0;
-  pointer-events:none;
+  overflow:hidden;
 }
+
 #ch_results_container {
-  transition:margin-left .25s ease, width .25s ease;
+  flex:1 1 auto;
+  min-width:0;
+  transition: width .25s ease;
   width:100%;
 }
+
+/* Mobile overlay behavior */
 @media (max-width: 900px){
   #ch_filter_sidebar {
     position:fixed;
     top:0;left:0;bottom:0;
     z-index:1001;
-    width:280px;
+    width:var(--ch-sidebar-width);
     max-width:80vw;
     overflow-y:auto;
     background:var(--body-background-fill);
     box-shadow:2px 0 12px rgba(0,0,0,.35);
-    padding:0 .5rem .75rem .5rem;
+    padding:0 .75rem .9rem .65rem;
+    /* Use transform only on mobile for slide-in */
+    transform:translateX(0);
+    transition:transform .25s ease, opacity .25s ease;
+    opacity:1;
   }
-  #ch_filter_sidebar.closed {transform:translateX(-120%);}
+  #ch_filter_sidebar.closed {
+    transform:translateX(-120%);
+    width:var(--ch-sidebar-width); /* keep internal layout width for animation start */
+    opacity:0;
+  }
   #ch_filter_backdrop {
     position:fixed;
     inset:0;
@@ -178,6 +205,7 @@ def make_ui():
     pointer-events:auto;
   }
 }
+
 @media (prefers-reduced-motion: reduce){
   #ch_filter_sidebar,
   #ch_results_container,

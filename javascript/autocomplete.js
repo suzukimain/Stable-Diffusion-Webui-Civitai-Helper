@@ -207,16 +207,23 @@ onUiLoaded(() => {
     let isMobile = () => window.matchMedia("(max-width: 900px)").matches;
 
     function applyState(open, skipFocus=false){
+      // Toggle collapsed class; desktop uses width collapse, mobile uses transform.
       open ? sidebar.classList.remove("closed") : sidebar.classList.add("closed");
       toggleBtn.setAttribute("aria-expanded", String(open));
+
       if(isMobile()){
+        // Mobile overlay handling
         backdrop.classList.toggle("show", open);
         if(open) document.body.style.overflow="hidden"; else document.body.style.overflow="";
       } else {
+        // Desktop: no overlay, ensure body scroll restored
         backdrop.classList.remove("show");
         document.body.style.overflow="";
       }
+
       localStorage.setItem(KEY, open ? "1":"0");
+
+      // Focus management (accessibility)
       if(open && !skipFocus){
         const f = firstFocusable();
         if(f){ setTimeout(()=> f.focus(), 30); }
