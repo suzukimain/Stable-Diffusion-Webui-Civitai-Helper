@@ -180,6 +180,86 @@ def on_ui_tabs():
             outputs=py_msg_txtbox
         )
 
+    # Prepare new experimental UI tab before return branches
+    new_ui_blocks = None
+    if shared.opts.data.get("ch_new_ui", False):
+        with gr.Blocks(analytics_enabled=False) as new_ui_blocks:
+            gr.Markdown("## ModelInfo Helper (Experimental)")
+            with gr.Row():
+                # Left sidebar: search boxes + categories
+                with gr.Column(scale=2, min_width=210):
+                    with gr.Box(elem_id="ch_mi_sidebar"):
+                        with gr.Row():
+                            mi_query = gr.Textbox(label="", placeholder="walk", value="", elem_id="ch_mi_query", show_label=False)
+                        mi_custom = gr.Textbox(label="", placeholder="CUSTOM", elem_id="ch_mi_custom", show_label=False)
+                        gr.HTML("<ul id='ch_mi_cat_list' class='ch-mi-cat-list'></ul>")
+                # Center column: toolbar + model cards grid
+                with gr.Column(scale=7, min_width=500):
+                    # Toolbar: page size slider, refresh button, SFW toggle
+                    with gr.Row(elem_id="ch_mi_toolbar"):
+                        mi_page_size = gr.Slider(4, 128, value=32, step=4, label="", elem_id="ch_mi_slider", show_label=False)
+                        mi_refresh = gr.Button("⟳", elem_id="ch_mi_refresh", variant="secondary")
+                        mi_sfw = gr.Checkbox(label="SFW", value=False, elem_id="ch_mi_sfw")
+                    mi_status = gr.Markdown(value="", elem_id="ch_mi_status")
+                    mi_results = gr.HTML("""
+<div id='ch_mi_results'>
+  <div id='ch_mi_results_inner' class='ch-mi-grid'>Loading...</div>
+</div>
+""")
+                # Right column: detail panel (populated via JS)
+                with gr.Column(scale=3, min_width=330):
+                    gr.HTML("""
+<div id="ch_mi_detail_panel" class="ch-mi-detail">
+  <div class="ch-mi-detail-title">DETAIL</div>
+  <div class="ch-mi-detail-sections">
+    <!-- Info section -->
+    <div class="ch-mi-detail-section" data-sec="info">
+      <div class="ch-mi-sec-head">INFO</div>
+      <div class="ch-mi-sec-body">
+        <div>ID: <span id="ch_mi_d_id"></span></div>
+        <div>Model Type: <span id="ch_mi_d_type" class="ch-mi-badge"></span></div>
+        <div>Version: <span id="ch_mi_d_version"></span></div>
+        <div>File: <span id="ch_mi_d_file"></span></div>
+        <div>Base: <span id="ch_mi_d_base"></span></div>
+        <div style="margin-top:6px;">Name:<br><input id="ch_mi_d_name" class="ch-mi-input" /></div>
+      </div>
+    </div>
+    <!-- Preview section -->
+    <div class="ch-mi-detail-section" data-sec="preview">
+      <div class="ch-mi-sec-head">PREVIEW</div>
+      <div class="ch-mi-sec-body">
+        <div id="ch_mi_d_preview_wrap" class="ch-mi-preview-box"><span class="ch-mi-none">No Preview</span></div>
+      </div>
+    </div>
+    <!-- Prompt section -->
+    <div class="ch-mi-detail-section" data-sec="prompt">
+      <div class="ch-mi-sec-head">PROMPT</div>
+      <div class="ch-mi-sec-body">
+        <div>Trigger Words:<br><input id="ch_mi_d_triggers" class="ch-mi-input" placeholder="comma,separated"/></div>
+        <div style="margin-top:6px;">Prompt:<br><textarea id="ch_mi_d_prompt" class="ch-mi-textarea" rows="3"></textarea></div>
+        <div style="margin-top:6px;">Negative:<br><textarea id="ch_mi_d_neg" class="ch-mi-textarea" rows="3"></textarea></div>
+        <div style="margin-top:6px;">Weight:<br><input id="ch_mi_d_weight" class="ch-mi-input" style="width:90px;" /></div>
+      </div>
+    </div>
+    <!-- Description section -->
+    <div class="ch-mi-detail-section" data-sec="desc">
+      <div class="ch-mi-sec-head">DESCRIPTION</div>
+      <div class="ch-mi-sec-body">
+        <textarea id="ch_mi_d_desc" class="ch-mi-textarea" rows="8" placeholder="Description"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="ch-mi-detail-actions">
+    <button id="ch_mi_detail_open_url" class="ch-mi-btn">Open Url</button>
+    <button id="ch_mi_detail_use_prompt" class="ch-mi-btn">Use Prompt</button>
+  </div>
+</div>
+""")
+            # Refresh button: JS handles logic, Python returns dummy updates
+            def _noop(a,b,c,d,e): return gr.update(), gr.update()
+            mi_refresh.click(_noop, inputs=[mi_query, mi_custom, mi_page_size, mi_sfw, js_msg_txtbox], outputs=[mi_status, mi_results])
+
+    # existing return branches
     if util.get_opts("ch_civitai_browser"):
         civitai_helper_browser = browser.civitai_search()
 
@@ -194,10 +274,21 @@ def on_ui_tabs():
                 with gr.Tab("Civitai", elem_id="ch_browser_tab_civitai"):
                     civitai_helper_browser.render()
 
-        # the third parameter is the element id on html, with a "tab_" as prefix
+        if shared.opts.data.get("ch_new_ui", False):
+            return (
+                (civitai_helper, "Helper", "civitai_helper"),
+                (new_ui_blocks, "ModelInfo Helper", "civitai_helper_new"),
+                (helper_browser_container, "Helper Browser", "civitai_helper_browser")
+            )
         return (
             (civitai_helper, "Helper", "civitai_helper"),
             (helper_browser_container, "Helper Browser", "civitai_helper_browser")
+        )
+
+    if shared.opts.data.get("ch_new_ui", False):
+        return (
+            (civitai_helper, "Helper", "civitai_helper"),
+            (new_ui_blocks, "ModelInfo Helper", "civitai_helper_new"),
         )
 
     return ((civitai_helper, "Helper", "civitai_helper"),)
@@ -357,6 +448,16 @@ def on_ui_settings():
             gr.Checkbox,
             {"interactive": True},
             section=section)
+    )
+    shared.opts.add_option(
+        "ch_new_ui",
+        shared.OptionInfo(
+            False,
+            "Enable experimental ModelInfo Helper UI (left sidebar layout)",
+            gr.Checkbox,
+            {"interactive": True},
+            section=section
+        )
     )
     if dynamic_args:
         shared.opts.add_option(

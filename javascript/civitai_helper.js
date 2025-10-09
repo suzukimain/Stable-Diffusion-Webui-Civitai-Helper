@@ -966,4 +966,241 @@ onUiLoaded(() => {
     //run it once
     update_card_for_civitai();
 
-});})();
+    // ========= Experimental ModelInfo Helper UI =========
+    function chInitModelInfoHelper() {
+        if (!gradioApp().querySelector("#ch_mi_sidebar")) return;
+        if (window.__ch_mi_initialized) return;
+        window.__ch_mi_initialized = true;
+
+        // Inject scoped styles once
+        if (!document.getElementById("ch_mi_style")) {
+            const st = document.createElement("style");
+            st.id = "ch_mi_style";
+            st.textContent = `
+#ch_mi_toolbar { align-items:center; gap:8px; }
+#ch_mi_slider input { width:140px !important; }
+.ch-mi-cat-list { list-style:none; padding:0; margin:0; font-size:12px; line-height:1.3; max-height:70vh; overflow-y:auto;}
+.ch-mi-cat-header { margin:8px 0 4px; font-weight:600; opacity:.85; }
+.ch-mi-cat-item { cursor:pointer; padding:2px 4px; border-radius:4px; }
+.ch-mi-cat-item.active, .ch-mi-cat-item:hover { background:#2a2e36; }
+#ch_mi_results_inner.ch-mi-grid { display:flex; flex-wrap:wrap; gap:18px; }
+.ch-mi-card { width:180px; background:#181a1f; border:1px solid #2a2e36; border-radius:6px; padding:6px 6px 10px; cursor:pointer; position:relative; }
+.ch-mi-card.active { outline:2px solid #4d82ff; }
+.ch-mi-thumb { width:100%; aspect-ratio:3/4; background:#222; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:32px; color:#666; }
+.ch-mi-thumb img { width:100%; height:100%; object-fit:cover; }
+.ch-mi-name { margin-top:6px; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ch-mi-tags { font-size:10px; opacity:.65; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ch-mi-detail { background:#181a1f; border:1px solid #2a2e36; padding:10px 12px; border-radius:6px; font-size:12px; }
+.ch-mi-detail-title { font-weight:600; letter-spacing:.5px; margin-bottom:4px; }
+.ch-mi-detail-section { border:1px solid #2a2e36; border-radius:4px; margin-bottom:8px; }
+.ch-mi-sec-head { font-weight:600; font-size:11px; padding:4px 6px; cursor:pointer; background:#1f2228; display:flex; justify-content:space-between; user-select:none; }
+.ch-mi-sec-head:after { content:"-"; }
+.ch-mi-sec-head.collapsed:after { content:"+"; }
+.ch-mi-sec-body { padding:6px 8px; display:block; }
+.ch-mi-sec-head.collapsed + .ch-mi-sec-body { display:none; }
+.ch-mi-input, .ch-mi-textarea { width:100%; background:#1f2228; border:1px solid #30343c; border-radius:4px; color:#ddd; font-size:12px; padding:4px 6px; }
+.ch-mi-textarea { resize:vertical; }
+.ch-mi-badge { background:#245; padding:2px 6px; border-radius:12px; font-size:10px; }
+.ch-mi-preview-box { background:#111; border:1px dashed #30343c; min-height:140px; display:flex; align-items:center; justify-content:center; border-radius:4px; overflow:hidden; }
+.ch-mi-preview-box img { width:100%; height:auto; object-fit:cover; }
+.ch-mi-none { opacity:.5; font-size:11px; }
+.ch-mi-detail-actions { display:flex; gap:8px; margin-top:6px; }
+.ch-mi-btn { background:#2a2e36; border:1px solid #3a3f47; color:#ddd; padding:4px 10px; font-size:12px; border-radius:4px; cursor:pointer; }
+.ch-mi-btn:hover { background:#334155; }
+`;
+            document.head.appendChild(st);
+        }
+
+        // ------- element refs (core interactive nodes) -------
+        const catListEl = gradioApp().querySelector("#ch_mi_cat_list");
+        const statusEl = gradioApp().querySelector("#ch_mi_status");
+        const resultsInner = gradioApp().querySelector("#ch_mi_results_inner");
+        const queryEl = gradioApp().querySelector("#ch_mi_query textarea, #ch_mi_query input");
+        const customEl = gradioApp().querySelector("#ch_mi_custom textarea, #ch_mi_custom input");
+        const sliderEl = gradioApp().querySelector("#ch_mi_slider input");
+        const sfwEl = gradioApp().querySelector("#ch_mi_sfw input");
+        const refreshBtn = gradioApp().querySelector("#ch_mi_refresh");
+        const detail = {
+            id: document.getElementById("ch_mi_d_id"),
+            type: document.getElementById("ch_mi_d_type"),
+            version: document.getElementById("ch_mi_d_version"),
+            file: document.getElementById("ch_mi_d_file"),
+            base: document.getElementById("ch_mi_d_base"),
+            name: document.getElementById("ch_mi_d_name"),
+            triggers: document.getElementById("ch_mi_d_triggers"),
+            prompt: document.getElementById("ch_mi_d_prompt"),
+            neg: document.getElementById("ch_mi_d_neg"),
+            weight: document.getElementById("ch_mi_d_weight"),
+            desc: document.getElementById("ch_mi_d_desc"),
+            previewWrap: document.getElementById("ch_mi_d_preview_wrap"),
+            openUrl: document.getElementById("ch_mi_detail_open_url"),
+            usePrompt: document.getElementById("ch_mi_detail_use_prompt"),
+            panel: document.getElementById("ch_mi_detail_panel"),
+        };
+
+        // ------- categories (mock placeholder; replace with API later) -------
+        const demoCats = [
+            {group:"BUILD-IN", items:["CKP","HYPER","LORA","TI"]},
+            {group:"LORA", items:["Character","Real","Semi","Style","Scene","Item","Face","Cloth","Animal"]},
+            {group:"MISC", items:["Workflow","Preset","Other"]},
+            {group:"CUSTOM", items:[]}
+        ];
+        function renderCats() {
+            catListEl.innerHTML = "";
+            demoCats.forEach(sec=>{
+                const h = document.createElement("li");
+                h.textContent = sec.group;
+                h.className = "ch-mi-cat-header";
+                catListEl.appendChild(h);
+                sec.items.forEach(name=>{
+                    const li=document.createElement("li");
+                    li.textContent=name;
+                    li.className="ch-mi-cat-item";
+                    li.dataset.cat=name;
+                    li.addEventListener("click",()=>{
+                        catListEl.querySelectorAll(".ch-mi-cat-item.active").forEach(n=>n.classList.remove("active"));
+                        li.classList.add("active");
+                        loadResults();
+                    });
+                    catListEl.appendChild(li);
+                });
+            });
+        }
+
+        // ------- data mock (temporary local dataset builder) -------
+        function buildMockModels(params) {
+            const count = params.page_size;
+            const out=[];
+            for(let i=0;i<count;i++){
+                out.push({
+                    id: "cv_"+(1000+i),
+                    name: `Model_${i+1}`,
+                    type: (params.category||"HYPER"),
+                    version: "v1",
+                    base: "SDXL",
+                    file: "model_"+(i+1)+".safetensors",
+                    preview: i%2===0 ? "https://placehold.co/300x400?text="+(i+1) : null,
+                    triggers: ["tagA","tagB"],
+                    prompt: "",
+                    neg: "",
+                    weight:"0.7",
+                    url: "https://civitai.com/models/"+(5000+i),
+                    desc: "Sample description "+(i+1)
+                });
+            }
+            return out;
+        }
+
+        // ------- state holders -------
+        let currentModels = [];
+        let selected = null;
+
+        // ------- populate detail panel with selected model -------
+        function populateDetail(m){
+            if(!m)return;
+            selected = m;
+            detail.id.textContent = m.id;
+            detail.type.textContent = m.type;
+            detail.version.textContent = m.version;
+            detail.file.textContent = m.file;
+            detail.base.textContent = m.base;
+            detail.name.value = m.name;
+            detail.triggers.value = m.triggers.join(", ");
+            detail.prompt.value = m.prompt;
+            detail.neg.value = m.neg;
+            detail.weight.value = m.weight;
+            detail.desc.value = m.desc;
+            detail.previewWrap.innerHTML = m.preview ? `<img src="${m.preview}">` : `<span class="ch-mi-none">No Preview</span>`;
+            detail.openUrl.onclick = ()=> window.open(m.url,"_blank");
+            detail.usePrompt.onclick = ()=> {
+                // 既存「Use Preview Prompt」ブリッジに接続するならここで send_ch_py_msg を利用可能
+                alert("Prompt機能は今後実装予定");
+            };
+        }
+
+        // ------- render model cards grid -------
+        function renderCards(models){
+            resultsInner.innerHTML="";
+            models.forEach(m=>{
+                const card=document.createElement("div");
+                card.className="ch-mi-card";
+                card.dataset.id=m.id;
+                card.innerHTML=`
+<div class="ch-mi-thumb">${m.preview?`<img src="${m.preview}">`:"🖼️"}</div>
+<div class="ch-mi-name" title="${m.name}">${m.name}</div>
+<div class="ch-mi-tags">${m.type}</div>`;
+                card.addEventListener("click",()=>{
+                    resultsInner.querySelectorAll(".ch-mi-card.active").forEach(n=>n.classList.remove("active"));
+                    card.classList.add("active");
+                    populateDetail(m);
+                });
+                resultsInner.appendChild(card);
+            });
+        }
+
+        // ------- fetch & build results (simulate async for now) -------
+        function loadResults() {
+            const activeCat = catListEl.querySelector(".ch-mi-cat-item.active");
+            const category = activeCat ? activeCat.dataset.cat : "";
+            const query = queryEl ? queryEl.value.trim() : "";
+            const custom = customEl ? customEl.value.trim() : "";
+            const page_size = sliderEl ? parseInt(sliderEl.value) : 32;
+            const sfw = sfwEl ? sfwEl.checked : false;
+            statusEl.innerHTML = `選択: ${category||"All"} | 件数:${page_size} | SFW:${sfw?"On":"Off"} ${query?("| "+query):""} ${custom?("| C:"+custom):""}`;
+            resultsInner.innerHTML="<div class='ch-mi-loading'>Loading...</div>";
+            setTimeout(()=>{
+                currentModels = buildMockModels({category,query,custom,page_size,sfw});
+                renderCards(currentModels);
+                if(currentModels.length>0){
+                    populateDetail(currentModels[0]);
+                    resultsInner.firstChild.classList.add("active");
+                } else {
+                    populateDetail(null);
+                }
+            },120);
+        }
+
+        // ------- collapsible detail sections (toggle show/hide) -------
+        detail.panel.querySelectorAll(".ch-mi-sec-head").forEach(head=>{
+            head.addEventListener("click",()=>{
+                head.classList.toggle("collapsed");
+            });
+        });
+
+        // ------- event bindings (toolbar & inputs) -------
+        refreshBtn?.addEventListener("click", loadResults);
+        ["change","keyup"].forEach(ev=>{
+            queryEl?.addEventListener(ev, e=> { if(ev==="change") loadResults(); });
+            customEl?.addEventListener(ev, e=> { if(ev==="change") loadResults(); });
+        });
+        sliderEl?.addEventListener("change", loadResults);
+        sfwEl?.addEventListener("change", loadResults);
+
+        renderCats();
+        loadResults();
+    }
+
+    // External API: rebuild sidebar categories (future dynamic usage)
+    window.ch_build_modelinfo_sidebar = function(categories){
+        const el = gradioApp().querySelector("#ch_mi_cat_list");
+        if(!el) return;
+        el.innerHTML="";
+        categories.forEach(sec=>{
+            const h=document.createElement("li");
+            h.textContent=sec.group;
+            h.className="ch-mi-cat-header";
+            el.appendChild(h);
+            sec.items.forEach(name=>{
+                const li=document.createElement("li");
+                li.className="ch-mi-cat-item";
+                li.textContent=name;
+                li.dataset.cat=name;
+                el.appendChild(li);
+            });
+        });
+    };
+
+    // Initialize experimental UI (no-op if disabled)
+    try { chInitModelInfoHelper(); } catch(e){ console.log(e); }
+
+})();

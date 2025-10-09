@@ -10,8 +10,9 @@ function setupAutocomplete(targetSelector, fetcher) {
   // Create dropdown container
   const dropdown = document.createElement("ul");
   dropdown.style.position = "absolute";
-  dropdown.style.background = "white";
-  dropdown.style.border = "1px solid #ccc";
+  dropdown.style.background = "#23252b"; // changed for dark theme
+  dropdown.style.color = "#ddd";         // added
+  dropdown.style.border = "1px solid #444"; // changed
   dropdown.style.listStyle = "none";
   dropdown.style.padding = "0";
   dropdown.style.margin = "0";
@@ -53,6 +54,8 @@ function setupAutocomplete(targetSelector, fetcher) {
         li.textContent = name;
         li.style.padding = "4px";
         li.style.cursor = "pointer";
+        li.addEventListener("mouseenter", ()=>{ li.style.background = "#355070"; li.style.color="#fff"; });
+        li.addEventListener("mouseleave", ()=>{ if(idx!==selectedIndex){ li.style.background=""; li.style.color="#ddd"; }});
 
         // Mouse click selection
         li.addEventListener("mousedown", () => {
@@ -90,7 +93,8 @@ function setupAutocomplete(targetSelector, fetcher) {
       e.preventDefault();
       selectedIndex = (selectedIndex + 1) % items.length;
       items.forEach((li, idx) => {
-        li.style.background = idx === selectedIndex ? "#def" : "white";
+        li.style.background = idx === selectedIndex ? "#355070" : "transparent";
+        li.style.color = idx === selectedIndex ? "#fff" : "#ddd";
       });
       items[selectedIndex].scrollIntoView({ block: "nearest" });
 
@@ -107,7 +111,8 @@ function setupAutocomplete(targetSelector, fetcher) {
       e.preventDefault();
       selectedIndex = (selectedIndex + 1) % items.length;
       items.forEach((li, idx) => {
-        li.style.background = idx === selectedIndex ? "#def" : "white";
+        li.style.background = idx === selectedIndex ? "#355070" : "transparent";
+        li.style.color = idx === selectedIndex ? "#fff" : "#ddd";
       });
       items[selectedIndex].scrollIntoView({ block: "nearest" });
 
@@ -116,7 +121,8 @@ function setupAutocomplete(targetSelector, fetcher) {
       e.preventDefault();
       selectedIndex = (selectedIndex - 1 + items.length) % items.length;
       items.forEach((li, idx) => {
-        li.style.background = idx === selectedIndex ? "#def" : "white";
+        li.style.background = idx === selectedIndex ? "#355070" : "transparent";
+        li.style.color = idx === selectedIndex ? "#fff" : "#ddd";
       });
       items[selectedIndex].scrollIntoView({ block: "nearest" });
 
@@ -125,7 +131,8 @@ function setupAutocomplete(targetSelector, fetcher) {
       e.preventDefault();
       selectedIndex = 0;
       items.forEach((li, idx) => {
-        li.style.background = idx === selectedIndex ? "#def" : "white";
+        li.style.background = idx === selectedIndex ? "#355070" : "transparent";
+        li.style.color = idx === selectedIndex ? "#fff" : "#ddd";
       });
       items[selectedIndex].scrollIntoView({ block: "nearest" });
 
@@ -134,7 +141,8 @@ function setupAutocomplete(targetSelector, fetcher) {
       e.preventDefault();
       selectedIndex = items.length - 1;
       items.forEach((li, idx) => {
-        li.style.background = idx === selectedIndex ? "#def" : "white";
+        li.style.background = idx === selectedIndex ? "#355070" : "transparent";
+        li.style.color = idx === selectedIndex ? "#fff" : "#ddd";
       });
       items[selectedIndex].scrollIntoView({ block: "nearest" });
     }
@@ -168,11 +176,11 @@ async function civitaiTagFetcher(query) {
 
 // Initialize on WebUI load
 onUiLoaded(() => {
-  // Query欄: textareaまたはinput両方に対応
+  // Query field: support both textarea and input
   setupAutocomplete("#ch_browser_query textarea", civitaiFetcher);
   setupAutocomplete("#ch_browser_query input", civitaiFetcher);
 
-  // Tag欄: textareaまたはinput両方に対応
+  // Tag field: support both textarea and input
   setupAutocomplete("#ch_browser_tag textarea", civitaiTagFetcher);
   setupAutocomplete("#ch_browser_tag input", civitaiTagFetcher);
 });
